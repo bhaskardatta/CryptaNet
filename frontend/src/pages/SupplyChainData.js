@@ -30,7 +30,7 @@ import {
 } from '@material-ui/core';
 import { Alert } from '@material-ui/lab';
 import { Visibility, Add, Search } from '@material-ui/icons';
-import { fetchSupplyChainData, submitSupplyChainData, retrieveSupplyChainData, clearError, clearSuccess, setSelectedData } from '../store/slices/supplyChainSlice';
+import { fetchSupplyChainData, submitSupplyChainData, retrieveSupplyChainData, clearError, clearSuccess, setSelectedData, clearSelectedData } from '../store/slices/supplyChainSlice';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -109,11 +109,11 @@ const SupplyChainData = () => {
     const startDate = new Date();
     startDate.setDate(startDate.getDate() - 7);
     
-    setQueryParams({
-      ...queryParams,
+    setQueryParams(prevParams => ({
+      ...prevParams,
       startTime: startDate.toISOString().split('T')[0],
       endTime: endDate.toISOString().split('T')[0],
-    });
+    }));
   }, []);
 
   const handleTabChange = (event, newValue) => {

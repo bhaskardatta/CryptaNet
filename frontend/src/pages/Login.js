@@ -53,7 +53,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const Login = ({ setIsAuthenticated }) => {
+const Login = () => {
   const classes = useStyles();
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -74,7 +74,6 @@ const Login = ({ setIsAuthenticated }) => {
     e.preventDefault();
     const result = await dispatch(login(credentials));
     if (!result.error) {
-      setIsAuthenticated(true);
       navigate('/');
     }
   };

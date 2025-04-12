@@ -1,12 +1,12 @@
 // Configuration for different environments
 const configs = {
   development: {
-    API_URL: 'http://localhost:5000',
+    API_URL: 'http://localhost:5001',
     BLOCKCHAIN_EXPLORER_URL: 'http://localhost:8080',
     DEBUG: true
   },
   test: {
-    API_URL: 'http://localhost:5000',
+    API_URL: 'http://localhost:5001',
     BLOCKCHAIN_EXPLORER_URL: 'http://localhost:8080',
     DEBUG: true
   },

@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { ThemeProvider, createTheme } from '@material-ui/core/styles';
 import CssBaseline from '@material-ui/core/CssBaseline';
+import { useDispatch, useSelector } from 'react-redux';
 
 // Layout components
 import Layout from './components/layout/Layout';
@@ -14,8 +15,8 @@ import AnomalyDetection from './pages/AnomalyDetection';
 import Explainability from './pages/Explainability';
 import Settings from './pages/Settings';
 
-// Services
-import { authService } from './services/authService';
+// Auth
+import { checkAuth } from './store/slices/authSlice';
 
 // Create theme
 const theme = createTheme({
@@ -40,35 +41,17 @@ const theme = createTheme({
 });
 
 function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+  const dispatch = useDispatch();
+  const { isAuthenticated, loading } = useSelector((state) => state.auth);
 
   useEffect(() => {
-    // Check if user is authenticated
-    const checkAuth = async () => {
-      const token = localStorage.getItem('token');
-      if (token) {
-        try {
-          // Verify token with backend
-          const isValid = await authService.verifyToken(token);
-          setIsAuthenticated(isValid);
-        } catch (error) {
-          console.error('Error verifying token:', error);
-          setIsAuthenticated(false);
-          localStorage.removeItem('token');
-        }
-      } else {
-        setIsAuthenticated(false);
-      }
-      setIsLoading(false);
-    };
-
-    checkAuth();
-  }, []);
+    // Check authentication status when app loads
+    dispatch(checkAuth());
+  }, [dispatch]);
 
   // Protected route component
   const ProtectedRoute = ({ children }) => {
-    if (isLoading) return <div>Loading...</div>;
+    if (loading) return <div>Loading...</div>;
     if (!isAuthenticated) return <Navigate to="/login" />;
     return children;
   };
@@ -77,7 +60,9 @@ function App() {
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <Routes>
-        <Route path="/login" element={<Login setIsAuthenticated={setIsAuthenticated} />} />
+        <Route path="/login" element={
+          isAuthenticated ? <Navigate to="/" /> : <Login />
+        } />
         <Route
           path="/"
           element={

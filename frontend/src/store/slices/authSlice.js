@@ -22,10 +22,40 @@ export const logout = createAsyncThunk('auth/logout', async () => {
   return true;
 });
 
+export const checkAuth = createAsyncThunk(
+  'auth/check',
+  async (_, { rejectWithValue }) => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        return rejectWithValue('No token found');
+      }
+      
+      const response = await authService.verifyToken(token);
+      if (!response) {
+        localStorage.removeItem('token');
+        return rejectWithValue('Invalid token');
+      }
+      
+      return {
+        token,
+        username: response.username,
+        role: response.role
+      };
+    } catch (error) {
+      localStorage.removeItem('token');
+      return rejectWithValue(error.message || 'Authentication failed');
+    }
+  }
+);
+
+// Check if we have a token in localStorage to set initial authentication state
+const token = localStorage.getItem('token');
+
 const initialState = {
   user: null,
-  token: localStorage.getItem('token') || null,
-  isAuthenticated: false,
+  token: token || null,
+  isAuthenticated: !!token,
   loading: false,
   error: null,
 };
@@ -61,6 +91,24 @@ const authSlice = createSlice({
         state.user = null;
         state.token = null;
         state.isAuthenticated = false;
+      })
+      .addCase(checkAuth.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(checkAuth.fulfilled, (state, action) => {
+        state.loading = false;
+        state.isAuthenticated = true;
+        state.user = {
+          username: action.payload.username,
+          role: action.payload.role,
+        };
+        state.token = action.payload.token;
+      })
+      .addCase(checkAuth.rejected, (state) => {
+        state.loading = false;
+        state.isAuthenticated = false;
+        state.user = null;
+        state.token = null;
       });
   },
 });

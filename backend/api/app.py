@@ -123,6 +123,41 @@ def login():
 
     return jsonify({'message': 'Invalid credentials!'}), 401
 
+@app.route('/api/auth/verify', methods=['GET'])
+def verify_token():
+    token = None
+    
+    if 'Authorization' in request.headers:
+        auth_header = request.headers['Authorization']
+        if auth_header.startswith('Bearer '):
+            token = auth_header.split(' ')[1]
+    
+    if not token:
+        return jsonify({'valid': False, 'message': 'Token is missing!'}), 401
+    
+    try:
+        data = jwt.decode(token, app.config['SECRET_KEY'], algorithms=['HS256'])
+        username = data['username']
+        # Check if user exists
+        if username not in users_db:
+            return jsonify({'valid': False, 'message': 'User not found!'}), 401
+            
+        return jsonify({'valid': True, 'username': username, 'role': users_db[username]['role']})
+    except:
+        return jsonify({'valid': False, 'message': 'Token is invalid!'}), 401
+
+@app.route('/api/auth/profile', methods=['GET'])
+@token_required
+def get_profile(current_user):
+    if current_user not in users_db:
+        return jsonify({'message': 'User not found!'}), 404
+        
+    return jsonify({
+        'username': current_user,
+        'role': users_db[current_user]['role'],
+        'organization': 'org1'  # Default organization for demonstration
+    })
+
 # Privacy Layer API
 @app.route('/api/privacy/encrypt', methods=['POST'])
 @token_required
@@ -396,6 +431,100 @@ def health_check():
         }
     })
 
+# Root route handler
+@app.route('/')
+def index():
+    return '''
+    <html>
+        <head>
+            <title>CryptaNet API Server</title>
+            <style>
+                body {
+                    font-family: Arial, sans-serif;
+                    line-height: 1.6;
+                    margin: 0;
+                    padding: 20px;
+                    max-width: 800px;
+                    margin: 0 auto;
+                }
+                h1 {
+                    color: #1976d2;
+                }
+                .endpoint {
+                    background-color: #f5f5f5;
+                    padding: 10px;
+                    margin-bottom: 10px;
+                    border-radius: 4px;
+                }
+                .method {
+                    display: inline-block;
+                    padding: 3px 6px;
+                    background-color: #1976d2;
+                    color: white;
+                    border-radius: 3px;
+                    margin-right: 10px;
+                }
+                code {
+                    background-color: #f0f0f0;
+                    padding: 2px 4px;
+                    border-radius: 3px;
+                }
+            </style>
+        </head>
+        <body>
+            <h1>CryptaNet API Server</h1>
+            <p>The CryptaNet backend server is running. Below are the available API endpoints:</p>
+            
+            <h2>Authentication:</h2>
+            <div class="endpoint">
+                <span class="method">POST</span> <code>/api/auth/login</code> - User login
+            </div>
+            <div class="endpoint">
+                <span class="method">GET</span> <code>/api/auth/verify</code> - Verify authentication token
+            </div>
+            <div class="endpoint">
+                <span class="method">GET</span> <code>/api/auth/profile</code> - Get user profile
+            </div>
+            
+            <h2>Health Check:</h2>
+            <div class="endpoint">
+                <span class="method">GET</span> <code>/api/health</code> - Check system health
+            </div>
+
+            <h2>Blockchain API:</h2>
+            <div class="endpoint">
+                <span class="method">POST</span> <code>/api/blockchain/submit-data</code> - Submit data to blockchain
+            </div>
+            <div class="endpoint">
+                <span class="method">GET</span> <code>/api/blockchain/query-data</code> - Query data from blockchain
+            </div>
+            
+            <h2>Privacy Layer:</h2>
+            <div class="endpoint">
+                <span class="method">POST</span> <code>/api/privacy/encrypt</code> - Encrypt data
+            </div>
+            <div class="endpoint">
+                <span class="method">POST</span> <code>/api/privacy/decrypt</code> - Decrypt data
+            </div>
+            
+            <h2>Anomaly Detection:</h2>
+            <div class="endpoint">
+                <span class="method">POST</span> <code>/api/anomaly-detection/detect</code> - Detect anomalies
+            </div>
+            <div class="endpoint">
+                <span class="method">POST</span> <code>/api/anomaly-detection/train</code> - Train anomaly detection model
+            </div>
+            
+            <h2>Explainability:</h2>
+            <div class="endpoint">
+                <span class="method">POST</span> <code>/api/explainability/explain</code> - Explain detected anomalies
+            </div>
+            
+            <p>For full API documentation, please refer to the project documentation.</p>
+        </body>
+    </html>
+    '''
+
 # Main entry point
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    app.run(debug=True, host='0.0.0.0', port=5001)

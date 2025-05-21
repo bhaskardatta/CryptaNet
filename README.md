@@ -29,6 +29,7 @@ The system provides:
 ## 🏛️ System Architecture
 
 ```mermaid
+%%{init: {'themeVariables': { 'fontColor': '#000000' }}}%%
 graph TB
     User[User] --> Frontend[Frontend Dashboard]
     
@@ -209,6 +210,7 @@ The frontend development server will start at [http://localhost:3000](http://loc
 ## 📊 Data Flow
 
 ```mermaid
+%%{init: {'themeVariables': { 'fontColor': '#000000' }}}%%
 sequenceDiagram
     participant User
     participant Frontend
@@ -268,6 +270,7 @@ Regular User:
 ### 1. Blockchain Implementation
 
 ```mermaid
+%%{init: {'themeVariables': { 'fontColor': '#000000' }}}%%
 graph LR
     subgraph "Hyperledger Fabric Network"
         Orderer[Orderer Service]
@@ -314,6 +317,7 @@ The privacy layer ensures data confidentiality and integrity through:
 ### 3. Anomaly Detection System
 
 ```mermaid
+%%{init: {'themeVariables': { 'fontColor': '#000000' }}}%%
 graph TD
     Data[Raw Data] --> Preprocess[Data Preprocessing]
     Preprocess --> Feature[Feature Engineering]

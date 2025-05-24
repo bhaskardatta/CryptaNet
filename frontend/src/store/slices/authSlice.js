@@ -32,15 +32,16 @@ export const checkAuth = createAsyncThunk(
       }
       
       const response = await authService.verifyToken(token);
-      if (!response) {
+      if (!response || !response.valid) {
         localStorage.removeItem('token');
         return rejectWithValue('Invalid token');
       }
       
       return {
         token,
-        username: response.username,
-        role: response.role
+        username: response.user.username,
+        role: response.user.role,
+        organization: response.user.organization
       };
     } catch (error) {
       localStorage.removeItem('token');
@@ -78,8 +79,9 @@ const authSlice = createSlice({
         state.loading = false;
         state.isAuthenticated = true;
         state.user = {
-          username: action.payload.username,
-          role: action.payload.role,
+          username: action.payload.user.username,
+          role: action.payload.user.role,
+          organization: action.payload.user.organization,
         };
         state.token = action.payload.token;
       })
@@ -101,6 +103,7 @@ const authSlice = createSlice({
         state.user = {
           username: action.payload.username,
           role: action.payload.role,
+          organization: action.payload.organization,
         };
         state.token = action.payload.token;
       })

@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5001/api';
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5004/api';
 
 export const authService = {
   /**
@@ -24,7 +24,7 @@ export const authService = {
   /**
    * Verify if the token is valid
    * @param {string} token - JWT token
-   * @returns {Promise<boolean>} - Promise with boolean indicating if token is valid
+   * @returns {Promise} - Promise with user data if token is valid
    */
   async verifyToken(token) {
     try {
@@ -33,7 +33,7 @@ export const authService = {
           Authorization: `Bearer ${token}`,
         },
       });
-      return response.data.valid;
+      return response.data; // Return full response data
     } catch (error) {
       return false;
     }

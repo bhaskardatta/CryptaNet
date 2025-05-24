@@ -86,6 +86,7 @@ const Settings = () => {
   const [tabValue, setTabValue] = useState(0);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [successMessage, setSuccessMessage] = useState('');
   const [error, setError] = useState(null);
   
   // Anomaly Detection Settings
@@ -232,14 +233,47 @@ const Settings = () => {
     setLoading(true);
     setError(null);
     try {
-      // Call the anomaly service to train the model
-      const response = await anomalyService.trainModel(user?.organizationId || 'org1', {
-        modelType: anomalySettings.modelType,
+      console.log('Starting model training with settings:', {
+        threshold: anomalySettings.defaultThreshold,
+        auto_train: anomalySettings.autoTrain,
+        model_type: anomalySettings.modelType
       });
-      setSuccess(true);
+      
+      // Call the anomaly service to train the model
+      const response = await fetch('http://localhost:5002/train', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          threshold: anomalySettings.defaultThreshold,
+          auto_train: anomalySettings.autoTrain,
+          model_type: anomalySettings.modelType,
+          n_estimators: 100,
+          // Add feature count based on model type
+          feature_count: anomalySettings.modelType === 'comprehensive' ? 5 : 3,
+          samples: 1000 // Increase sample size for better training
+        })
+      });
+      
+      if (response.ok) {
+        const result = await response.json();
+        console.log('Model training result:', result);
+        if (result.success) {
+          setSuccess(true);
+          // Set a more descriptive success message
+          setSuccessMessage(`Model trained successfully with ${result.details?.samples || 'unknown'} samples and ${result.details?.features || 'unknown'} features.`);
+        } else {
+          throw new Error(result.message || 'Training completed with errors');
+        }
+      } else {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(`Failed to train model: ${errorData.message || response.statusText}`);
+      }
       setLoading(false);
     } catch (err) {
-      setError('Failed to train model. Please try again.');
+      console.error('Error training model:', err);
+      setError(`Failed to train model: ${err.message || 'Unknown error'}`);
       setLoading(false);
     }
   };
@@ -537,7 +571,7 @@ const Settings = () => {
       {/* Snackbar for notifications */}
       <Snackbar open={!!error || success} autoHideDuration={6000} onClose={handleCloseSnackbar}>
         <Alert onClose={handleCloseSnackbar} severity={error ? 'error' : 'success'}>
-          {error || 'Settings saved successfully'}
+          {error || successMessage || 'Settings saved successfully'}
         </Alert>
       </Snackbar>
     </div>

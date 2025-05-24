@@ -113,50 +113,56 @@ const Dashboard = () => {
   const fetchDashboardData = async () => {
     setLoading(true);
 
-    // Set date range for last 30 days
-    const endDate = new Date();
-    const startDate = new Date();
-    startDate.setDate(startDate.getDate() - 30);
-
-    // Fetch supply chain data
-    dispatch(fetchSupplyChainData({
-      organizationId: user?.organizationId || 'org1',
-      dataType: 'all',
-      startTime: startDate.toISOString(),
-      endTime: endDate.toISOString(),
-      includeAnomaliesOnly: false,
-    }));
-
-    // Fetch anomalies
-    dispatch(detectAnomalies({
-      organizationId: user?.organizationId || 'org1',
-      dataType: 'all',
-      startTime: startDate.toISOString(),
-      endTime: endDate.toISOString(),
-      threshold: 0.5,
-    }));
-
     try {
-      // Fetch system status
-      const response = await fetch('/api/system/status', {
+      // Get token from localStorage
+      const token = localStorage.getItem('token');
+      
+      if (!token) {
+        console.log('No token found, user needs to login');
+        setLoading(false);
+        return;
+      }
+
+      // Fetch data directly from the backend API
+      const response = await fetch(`/api/supply-chain/query?organizationId=${user?.organization || 'Org1MSP'}`, {
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
         },
       });
       
       if (response.ok) {
         const data = await response.json();
-        setSystemStatus(data);
+        console.log('Dashboard API response:', data);
+        
+        // Handle both possible response structures
+        const results = data.results || data.data || [];
+        const totalCount = data.count || data.total || results.length;
+        
+        // Update stats based on actual data
+        setStats({
+          totalRecords: totalCount,
+          anomaliesDetected: results.filter(item => item.is_anomaly).length,
+          dataProcessed: totalCount,
+          systemHealth: 95
+        });
+        
+        // Set recent anomalies
+        const anomalies = results.filter(item => item.is_anomaly).slice(0, 5);
+        setRecentAnomalies(anomalies);
+        
+        // Also dispatch Redux action to update global state
+        dispatch(fetchSupplyChainData({
+          organizationId: user?.organization || 'Org1MSP',
+          dataType: 'all',
+          includeAnomaliesOnly: false,
+        }));
+        
+      } else {
+        console.error('Failed to fetch data:', response.status, response.statusText);
       }
     } catch (error) {
-      console.error('Error fetching system status:', error);
-      // Set default status if API fails
-      setSystemStatus({
-        blockchain: 'available',
-        anomaly_detection: 'available',
-        explainability: 'available',
-        privacy_layer: 'available',
-      });
+      console.error('Error fetching dashboard data:', error);
     }
 
     setLoading(false);
@@ -215,7 +221,7 @@ const Dashboard = () => {
   };
 
   const renderRecentAnomalies = () => {
-    if (recentAnomalies.length === 0) {
+    if (!recentAnomalies || recentAnomalies.length === 0) {
       return (
         <Typography variant="body2" color="textSecondary">
           No anomalies detected in the last 30 days.
@@ -225,20 +231,55 @@ const Dashboard = () => {
 
     return (
       <List>
-        {recentAnomalies.map((anomaly, index) => (
-          <React.Fragment key={anomaly.id}>
-            <ListItem>
-              <ListItemIcon>
-                <ErrorOutline color="error" />
-              </ListItemIcon>
-              <ListItemText
-                primary={`${anomaly.dataType} anomaly in product ${anomaly.productId}`}
-                secondary={`Detected on ${new Date(anomaly.timestamp).toLocaleString()} - Score: ${anomaly.anomalyScore.toFixed(4)}`}
-              />
-            </ListItem>
-            {index < recentAnomalies.length - 1 && <Divider component="li" />}
-          </React.Fragment>
-        ))}
+        {recentAnomalies.map((anomaly, index) => {
+          // Extract data properly based on the structure
+          const productId = anomaly.productId || anomaly.data?.productId || 'N/A';
+          const productName = anomaly.data?.product || anomaly.product || 'Unknown Product';
+          const timestamp = (() => {
+            if (!anomaly.timestamp) return 'Unknown time';
+            try {
+              const date = new Date(anomaly.timestamp);
+              return isNaN(date.getTime()) ? 'Invalid Date' : date.toLocaleString();
+            } catch (e) {
+              return 'Invalid Date';
+            }
+          })();
+          const anomalyScore = anomaly.anomaly_score || anomaly.anomalyScore || 0;
+          const scoreDisplay = typeof anomalyScore === 'number' ? 
+            anomalyScore.toFixed(4) : 'Unknown';
+          const location = anomaly.data?.location || 'Unknown location';
+          const temperature = anomaly.data?.temperature || 'N/A';
+          const humidity = anomaly.data?.humidity || 'N/A';
+          
+          return (
+            <React.Fragment key={anomaly.id || index}>
+              <ListItem>
+                <ListItemIcon>
+                  <ErrorOutline color="error" />
+                </ListItemIcon>
+                <ListItemText
+                  primary={`${productId}: ${productName} - ${location}`}
+                  secondary={
+                    <>
+                      <Typography component="span" variant="body2" color="error">
+                        Anomaly detected!
+                      </Typography>
+                      <br />
+                      <Typography component="span" variant="body2">
+                        {timestamp} - Score: {scoreDisplay}
+                      </Typography>
+                      <br />
+                      <Typography component="span" variant="body2">
+                        Temperature: {temperature}°C, Humidity: {humidity}%
+                      </Typography>
+                    </>
+                  }
+                />
+              </ListItem>
+              {index < recentAnomalies.length - 1 && <Divider component="li" />}
+            </React.Fragment>
+          );
+        })}
       </List>
     );
   };

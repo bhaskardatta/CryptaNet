@@ -91,6 +91,7 @@ const SupplyChainData = () => {
   });
   const [newData, setNewData] = useState({
     productId: '',
+    product: '',
     timestamp: new Date().toISOString(),
     location: '',
     temperature: '',
@@ -147,7 +148,7 @@ const SupplyChainData = () => {
   const handleQuerySubmit = (e) => {
     e.preventDefault();
     dispatch(fetchSupplyChainData({
-      organizationId: user?.organizationId || 'org1',
+      organizationId: user?.organization || 'Org1MSP',
       ...queryParams,
     }));
   };
@@ -156,7 +157,7 @@ const SupplyChainData = () => {
     e.preventDefault();
     dispatch(submitSupplyChainData({
       data: newData,
-      organizationId: user?.organizationId || 'org1',
+      organizationId: user?.organization || 'Org1MSP',
       dataType: newData.dataType,
       accessControl: newData.accessControl,
     }));
@@ -165,7 +166,7 @@ const SupplyChainData = () => {
   const handleViewDetails = (dataId) => {
     dispatch(retrieveSupplyChainData({
       dataId,
-      organizationId: user?.organizationId || 'org1',
+      organizationId: user?.organization || 'Org1MSP',
     }));
     setDetailsOpen(true);
   };
@@ -273,24 +274,83 @@ const SupplyChainData = () => {
                 </TableHead>
                 <TableBody>
                   {data && data.length > 0 ? (
-                    data.map((item) => (
-                      <TableRow key={item.id}>
-                        <TableCell>{item.id}</TableCell>
-                        <TableCell>{item.productId}</TableCell>
-                        <TableCell>{item.dataType}</TableCell>
-                        <TableCell>{new Date(item.timestamp).toLocaleString()}</TableCell>
-                        <TableCell>
-                          {item.dataType === 'temperature' && `${item.temperature}°C`}
-                          {item.dataType === 'humidity' && `${item.humidity}%`}
-                          {item.dataType === 'location' && item.location}
-                        </TableCell>
-                        <TableCell>
-                          <IconButton onClick={() => handleViewDetails(item.id)}>
-                            <Visibility />
-                          </IconButton>
-                        </TableCell>
-                      </TableRow>
-                    ))
+                    data.map((item) => {
+                      // Extract data properly from various possible structures
+                      const productId = item.productId || item.data?.productId || 'N/A';
+                      const product = item.product || item.data?.product || 'Unknown';
+                      const dataType = item.dataType || 'supply_chain';
+                      const timestamp = item.timestamp || new Date().toISOString();
+                      
+                      // Extract values based on where they might be stored
+                      const temperature = item.temperature || item.data?.temperature;
+                      const humidity = item.humidity || item.data?.humidity;
+                      const location = item.location || item.data?.location;
+                      const quantity = item.quantity || item.data?.quantity;
+                      
+                      return (
+                        <TableRow key={item.id}>
+                          <TableCell>{item.id}</TableCell>
+                          <TableCell>
+                            {(() => {
+                              if (productId && productId !== 'N/A') {
+                                return product ? `${productId} - ${product}` : productId;
+                              }
+                              return product || 'Unknown Product';
+                            })()}
+                          </TableCell>
+                          <TableCell>{dataType}</TableCell>
+                          <TableCell>
+                            {(() => {
+                              try {
+                                return new Date(timestamp).toLocaleString();
+                              } catch (e) {
+                                return 'Invalid Date';
+                              }
+                            })()}
+                          </TableCell>
+                          <TableCell>
+                            {(() => {
+                              // More robust value display with multiple fallbacks
+                              if (temperature !== undefined && temperature !== null && temperature !== '') {
+                                return `Temperature: ${temperature}°C`;
+                              } else if (humidity !== undefined && humidity !== null && humidity !== '') {
+                                return `Humidity: ${humidity}%`;
+                              } else if (location && typeof location === 'string' && location.trim() !== '') {
+                                return `Location: ${location}`;
+                              } else if (quantity !== undefined && quantity !== null && quantity !== '') {
+                                return `Quantity: ${quantity}`;
+                              } else if (item.value !== undefined && item.value !== null) {
+                                // Generic value field
+                                if (dataType === 'temperature') {
+                                  return `${item.value}°C`;
+                                } else if (dataType === 'humidity') {
+                                  return `${item.value}%`;
+                                } else {
+                                  return item.value;
+                                }
+                              } else {
+                                // Try to extract any numeric value from the data object
+                                const dataObj = item.data || {};
+                                const numericValues = Object.entries(dataObj)
+                                  .filter(([key, value]) => typeof value === 'number' && !isNaN(value))
+                                  .map(([key, value]) => {
+                                    if (key.toLowerCase().includes('temp')) return `${value}°C`;
+                                    if (key.toLowerCase().includes('humid')) return `${value}%`;
+                                    return `${key}: ${value}`;
+                                  });
+                                
+                                return numericValues.length > 0 ? numericValues[0] : 'No data available';
+                              }
+                            })()}
+                          </TableCell>
+                          <TableCell>
+                            <IconButton onClick={() => handleViewDetails(item.id)}>
+                              <Visibility />
+                            </IconButton>
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })
                   ) : (
                     <TableRow>
                       <TableCell colSpan={6} align="center">
@@ -317,6 +377,19 @@ const SupplyChainData = () => {
                   value={newData.productId}
                   onChange={handleNewDataChange}
                   variant="outlined"
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  required
+                  id="product"
+                  name="product"
+                  label="Product Name"
+                  value={newData.product}
+                  onChange={handleNewDataChange}
+                  variant="outlined"
+                  placeholder="Enter product name"
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
@@ -430,23 +503,47 @@ const SupplyChainData = () => {
               </Grid>
               <Grid item xs={12} sm={6}>
                 <Typography variant="subtitle1">Product ID:</Typography>
-                <Typography variant="body1">{selectedData.productId}</Typography>
+                <Typography variant="body1">{selectedData.productId || selectedData.data?.productId || 'N/A'}</Typography>
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <Typography variant="subtitle1">Product:</Typography>
+                <Typography variant="body1">{selectedData.product || selectedData.data?.product || 'N/A'}</Typography>
               </Grid>
               <Grid item xs={12} sm={6}>
                 <Typography variant="subtitle1">Data Type:</Typography>
-                <Typography variant="body1">{selectedData.dataType}</Typography>
+                <Typography variant="body1">{selectedData.dataType || 'supply_chain'}</Typography>
               </Grid>
               <Grid item xs={12} sm={6}>
                 <Typography variant="subtitle1">Timestamp:</Typography>
-                <Typography variant="body1">{new Date(selectedData.timestamp).toLocaleString()}</Typography>
+                <Typography variant="body1">
+                  {selectedData.timestamp ? 
+                    (typeof selectedData.timestamp === 'string' ? 
+                      (isNaN(Date.parse(selectedData.timestamp)) ? 'Invalid Date' : new Date(selectedData.timestamp).toLocaleString()) : 
+                      (selectedData.timestamp instanceof Date ? selectedData.timestamp.toLocaleString() : 'Invalid Date')) : 
+                    new Date().toLocaleString()}
+                </Typography>
               </Grid>
               <Grid item xs={12} sm={6}>
-                <Typography variant="subtitle1">Value:</Typography>
+                <Typography variant="subtitle1">Temperature:</Typography>
                 <Typography variant="body1">
-                  {selectedData.dataType === 'temperature' && `${selectedData.temperature}°C`}
-                  {selectedData.dataType === 'humidity' && `${selectedData.humidity}%`}
-                  {selectedData.dataType === 'location' && selectedData.location}
+                  {(() => {
+                    const temp = selectedData.temperature || selectedData.data?.temperature;
+                    return (temp !== undefined && temp !== null) ? `${temp}°C` : 'N/A';
+                  })()}
                 </Typography>
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <Typography variant="subtitle1">Humidity:</Typography>
+                <Typography variant="body1">
+                  {(() => {
+                    const humidity = selectedData.humidity || selectedData.data?.humidity;
+                    return (humidity !== undefined && humidity !== null) ? `${humidity}%` : 'N/A';
+                  })()}
+                </Typography>
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <Typography variant="subtitle1">Location:</Typography>
+                <Typography variant="body1">{selectedData.location || selectedData.data?.location || 'N/A'}</Typography>
               </Grid>
               <Grid item xs={12}>
                 <Typography variant="subtitle1">Blockchain Information:</Typography>

@@ -1,8 +1,15 @@
 import json
 import os
-from .encryption.fernet_encryption import FernetEncryption
-from .hashing.sha256_hashing import SHA256Hashing
-from .zkp.zero_knowledge_proof import ZeroKnowledgeProof
+import sys
+from pathlib import Path
+
+# Add current directory to path
+current_dir = Path(__file__).parent
+sys.path.append(str(current_dir))
+
+from encryption.fernet_encryption import FernetEncryption
+from hashing.sha256_hashing import SHA256Hashing
+from zkp.zero_knowledge_proof import ZeroKnowledgeProof
 
 class PrivacyAPI:
     """

@@ -11,7 +11,7 @@ import datetime
 
 # Import CryptaNet components
 import sys
-sys.path.append('/Users/bhaskar/Desktop/Mini_Project/CryptaNet')
+sys.path.append('/Users/bhaskar/Desktop/CryptaNet')
 from privacy_layer.privacy_api import PrivacyAPI
 from anomaly_detection.anomaly_detection_api import AnomalyDetectionAPI
 from explainability.explanation_api.explanation_generator import ExplanationGenerator

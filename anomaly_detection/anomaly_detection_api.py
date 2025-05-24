@@ -1,11 +1,18 @@
 import pandas as pd
 import numpy as np
 import os
+import sys
 import json
-from .preprocessing.data_preprocessor import DataPreprocessor
-from .feature_engineering.feature_extractor import FeatureExtractor
-from .models.isolation_forest import AnomalyDetector
-from .evaluation.model_evaluator import ModelEvaluator
+from pathlib import Path
+
+# Add the current directory to the Python path
+current_dir = Path(__file__).parent
+sys.path.append(str(current_dir))
+
+from preprocessing.data_preprocessor import DataPreprocessor
+from feature_engineering.feature_extractor import FeatureExtractor
+from models.isolation_forest import AnomalyDetector
+from evaluation.model_evaluator import ModelEvaluator
 
 class AnomalyDetectionAPI:
     """

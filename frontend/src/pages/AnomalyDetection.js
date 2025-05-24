@@ -119,7 +119,7 @@ const AnomalyDetection = () => {
   const handleDetectAnomalies = (e) => {
     e.preventDefault();
     dispatch(detectAnomalies({
-      organizationId: user?.organizationId || 'org1',
+      organizationId: user?.organization || 'Org1MSP',
       ...queryParams,
     }));
   };
@@ -127,7 +127,7 @@ const AnomalyDetection = () => {
   const handleViewExplanation = (anomalyId) => {
     dispatch(getAnomalyExplanation({
       anomalyId,
-      organizationId: user?.organizationId || 'org1',
+      organizationId: user?.organization || 'Org1MSP',
     }));
     setExplanationOpen(true);
   };

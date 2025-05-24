@@ -13,8 +13,19 @@ export const fetchSupplyChainData = createAsyncThunk(
         endTime,
         includeAnomaliesOnly
       );
-      return response.results;
+      
+      // Handle the response structure from our backend
+      if (response && response.results) {
+        return response.results;
+      } else if (response && response.data) {
+        return response.data;
+      } else if (Array.isArray(response)) {
+        return response;
+      } else {
+        return [];
+      }
     } catch (error) {
+      console.error('Error in fetchSupplyChainData:', error);
       return rejectWithValue(error.response?.data?.message || 'Failed to fetch supply chain data');
     }
   }
@@ -96,9 +107,13 @@ const supplyChainSlice = createSlice({
         state.error = null;
         state.success = false;
       })
-      .addCase(submitSupplyChainData.fulfilled, (state) => {
+      .addCase(submitSupplyChainData.fulfilled, (state, action) => {
         state.submitting = false;
         state.success = true;
+        // Add the new data to the existing data array
+        if (action.payload.data_id) {
+          // Optionally refresh the data list here
+        }
       })
       .addCase(submitSupplyChainData.rejected, (state, action) => {
         state.submitting = false;

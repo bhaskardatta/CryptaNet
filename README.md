@@ -1,7 +1,12 @@
 # 🚀 CryptaNet: Privacy-Preserving & Explainable AI for Supply Chain
 
-<div align="center">
-  
+<div align="cent| Service | URL | Description |
+|---------|-----|-------------|
+| 🎨 Frontend Dashboard | http://localhost:3000 | React interface |
+| 🖥️ Backend API | http://localhost:5004 | Integration service |
+| 🤖 Anomaly Detection | http://localhost:5002 | AI engine |
+| 🔒 Privacy Layer | http://localhost:5003 | Security service |
+| 📊 Data Simulator | CLI Tool | Enhanced data generation with scenarios |
   [![CryptaNet](https://img.shields.io/badge/CryptaNet-v2.0-ff6b6b?style=for-the-badge&logo=data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEyIDJMMTMuMDkgOC4yNkwyMSA9TDEzLjA5IDE1Ljc0TDEyIDIyTDEwLjkxIDE1Ljc0TDMgOUwxMC45MSA4LjI2TDEyIDJaIiBmaWxsPSJ3aGl0ZSIvPgo8L3N2Zz4K)](https://github.com/bhaskardatta/CryptaNet)
   [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](LICENSE)
   [![Python 3.8+](https://img.shields.io/badge/Python-3.8+-green.svg?style=for-the-badge&logo=python)](https://www.python.org/downloads/)
@@ -49,6 +54,10 @@ graph TB
 ```
 CryptaNet/
 ├── 🚀 startup_system.sh                   # One-command startup script
+├── 📊 enhanced_data_simulator.py          # Enhanced simulator with dashboard
+├── 📊 data_simulator.py                   # Basic data simulator
+├── 📊 data_simulator_dashboard.py         # Standalone dashboard
+├── ⚙️ simulator_config.json               # Simulator configuration
 ├── 🤖 anomaly_detection/                  # AI anomaly detection engine
 ├── 🖥️ backend/                           # Integration backend service
 ├── ⛓️ blockchain/                         # Hyperledger Fabric network
@@ -86,6 +95,7 @@ chmod +x startup_system.sh
 | 🖥️ Backend API | http://localhost:5004 | Integration service |
 | 🤖 Anomaly Detection | http://localhost:5002 | AI engine |
 | 🔒 Privacy Layer | http://localhost:5003 | Security service |
+| 📊 Data Simulator | CLI Tool | Enhanced data generation with scenarios |
 
 ### Default Credentials
 
@@ -212,6 +222,153 @@ kill <PRIVACY_PID> <ANOMALY_PID> <BACKEND_PID> <FRONTEND_PID>
 # Stop blockchain
 cd blockchain/network
 ./stopFabric.sh
+```
+
+## 📊 Data Simulator
+
+CryptaNet includes a sophisticated CLI-based data simulator for testing and development. It generates realistic supply chain data with configurable anomaly rates for comprehensive system validation.
+
+### 🚀 Enhanced Data Simulator
+
+The enhanced simulator provides intelligent data generation with comprehensive CLI monitoring and logging.
+
+```bash
+# Start the enhanced simulator
+python3 enhanced_data_simulator.py
+
+# Configuration options:
+# --interval 10            # Generation interval in seconds (default: 10)
+# --config CONFIG          # Custom configuration file path
+# --max-records 1000       # Maximum records to generate
+# --scenario "Cold Chain"  # Start with predefined scenario
+# --environment normal     # Set environment condition
+# --verbose                # Enable verbose logging
+```
+
+**Key Features:**
+- ⚡ Real-time CLI statistics display
+- 📈 Comprehensive logging with category and organization tracking
+- 🚨 Intelligent anomaly generation (25+ anomaly types)
+- ⏱️ Performance metrics tracking
+- 🎭 5 predefined simulation scenarios
+- 🌍 7 environmental condition modes
+- 📊 Session tracking and detailed statistics
+
+### 🔧 Basic Data Simulator
+
+For simpler data generation without the dashboard:
+
+```bash
+# Start basic simulator
+python3 data_simulator.py
+
+# Generate sample data with anomalies
+./generate_sample_data_with_anomalies.sh
+
+# Inject sample data into the system
+./inject_sample_data.sh
+```
+
+### 📋 Simulator Configuration
+
+Configure the simulator via `simulator_config.json`:
+
+```json
+{
+  "anomaly_rate": 0.1,
+  "generation_interval": 5,
+  "organizations": ["OrgA", "OrgB", "OrgC"],
+  "categories": ["Electronics", "Pharmaceuticals", "Food", "Automotive", "Textiles"],
+  "anomaly_types": {
+    "price": 0.3,
+    "quantity": 0.25,
+    "quality": 0.2,
+    "timing": 0.15,
+    "location": 0.1
+  }
+}
+```
+
+### 🎭 Available Scenarios
+
+| Scenario | Description |
+|----------|-------------|
+| **Cold Chain Failure** | Temperature control system failures |
+| **Supply Chain Disruption** | Logistics and transportation issues |
+| **Security Breach** | Unauthorized access and data tampering |
+| **Natural Disaster** | Environmental impact on operations |
+| **Quality Crisis** | Product quality control failures |
+
+### 🌍 Environment Conditions
+
+| Environment | Impact |
+|-------------|--------|
+| **normal** | Standard operating conditions |
+| **extreme_heat** | High temperature stress testing |
+| **extreme_cold** | Low temperature scenarios |
+| **high_humidity** | Moisture-related challenges |
+| **low_humidity** | Dry environment conditions |
+| **power_outage** | Infrastructure failure simulation |
+| **natural_disaster** | Emergency response testing |
+
+### 📈 CLI Monitoring & Analytics
+
+The enhanced simulator provides comprehensive CLI monitoring and logging:
+
+| Metric | Description |
+|--------|-------------|
+| **Total Generated** | Total records created in current session |
+| **Anomalies Detected** | Number of anomalous records generated |
+| **Success Rate** | Percentage of successful data submissions |
+| **Generation Rate** | Records per minute (calculated and logged) |
+| **Response Time** | Average API response time tracking |
+| **Runtime** | Total session duration |
+| **Category Stats** | Distribution by product category |
+| **Organization Stats** | Distribution by organization |
+| **Anomaly Types** | Breakdown of different anomaly types |
+
+### 📋 Real-time Output
+
+The CLI provides real-time feedback during simulation:
+
+```
+2025-05-25 13:53:34,448 - INFO - 🚀 Enhanced Data Simulator v3.0 initialized
+2025-05-25 13:53:34,459 - INFO - ✅ Successfully authenticated with backend
+2025-05-25 13:53:34,459 - INFO - 📦 Normal: PHA-ST-62445 - Standard Pharmaceuticals... ($47,057.77)
+2025-05-25 13:53:34,482 - INFO - ✅ Successfully submitted to Org3MSP
+2025-05-25 13:53:39,487 - INFO - 📦 Normal: MED-DE-10130 - Medical Devices... ($108,912.63)
+```
+
+### 🧪 Testing Scenarios
+
+Use the CLI simulator to test various scenarios:
+
+```bash
+# Fast generation for load testing
+python3 enhanced_data_simulator.py --interval 1
+
+# Extended testing session with verbose logging
+python3 enhanced_data_simulator.py --interval 15 --verbose
+
+# Simulate specific scenarios
+python3 enhanced_data_simulator.py --scenario "Cold Chain Failure"
+python3 enhanced_data_simulator.py --scenario "Supply Chain Disruption"
+python3 enhanced_data_simulator.py --scenario "Security Breach"
+
+# Test different environments
+python3 enhanced_data_simulator.py --environment extreme_heat
+python3 enhanced_data_simulator.py --environment power_outage
+python3 enhanced_data_simulator.py --environment natural_disaster
+
+# Limited data generation for testing
+python3 enhanced_data_simulator.py --max-records 100
+
+# Custom configuration with specific interval
+python3 enhanced_data_simulator.py --config simulator_config.json --interval 5
+```
+
+# Background testing (no dashboard)
+python3 enhanced_data_simulator.py --no-dashboard --interval 5 &
 ```
 
 ## 🎯 Use Cases

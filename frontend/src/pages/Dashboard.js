@@ -28,6 +28,7 @@ import { fetchSupplyChainData } from '../store/slices/supplyChainSlice';
 import { detectAnomalies } from '../store/slices/anomalySlice';
 import { anomalyService } from '../services/anomalyService';
 import { supplyChainService } from '../services/supplyChainService';
+import { API_URL } from '../config';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -110,6 +111,40 @@ const Dashboard = () => {
     return () => clearInterval(interval);
   }, []);
 
+  const fetchSystemStatus = async () => {
+    try {
+      // Check backend API health
+      const backendResponse = await fetch(`${API_URL}/api/analytics/summary`, {
+        headers: { 'Content-Type': 'application/json' }
+      });
+      
+      // Check privacy layer status
+      const privacyResponse = await fetch('http://localhost:5005/status', {
+        headers: { 'Content-Type': 'application/json' }
+      });
+
+      // Check anomaly detection status
+      const anomalyResponse = await fetch(`${API_URL}/api/anomaly-detection/metrics`, {
+        headers: { 'Content-Type': 'application/json' }
+      });
+
+      setSystemStatus({
+        blockchain: backendResponse.ok ? 'available' : 'error',
+        privacy_layer: privacyResponse.ok ? 'available' : 'error',
+        anomaly_detection: anomalyResponse.ok ? 'available' : 'error',
+        explainability: backendResponse.ok ? 'available' : 'error', // Assuming explainability is part of backend
+      });
+    } catch (error) {
+      console.error('Error checking system status:', error);
+      setSystemStatus({
+        blockchain: 'error',
+        privacy_layer: 'error',
+        anomaly_detection: 'error',
+        explainability: 'error',
+      });
+    }
+  };
+
   const fetchDashboardData = async () => {
     setLoading(true);
 
@@ -123,8 +158,11 @@ const Dashboard = () => {
         return;
       }
 
+      // Fetch system status first
+      await fetchSystemStatus();
+
       // Fetch data directly from the backend API
-      const response = await fetch(`/api/supply-chain/query?organizationId=${user?.organization || 'Org1MSP'}`, {
+      const response = await fetch(`${API_URL}/api/supply-chain/query?organizationId=${user?.organization || 'Org1MSP'}`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'

@@ -1,0 +1,65 @@
+{
+  "api_url": "http://localhost:5004",
+  "organizations": ["Org1MSP", "Org2MSP", "Org3MSP"],
+  "anomaly_rate": 0.15,
+  "seasonal_effects": true,
+  "time_based_variations": true,
+  "authentication": {
+    "username": "admin",
+    "password": "admin123"
+  },
+  "simulation_settings": {
+    "default_interval": 10,
+    "max_concurrent_requests": 5,
+    "retry_attempts": 3,
+    "timeout_seconds": 30
+  },
+  "custom_products": [
+    {
+      "name": "Luxury Watches",
+      "category": "Luxury Goods",
+      "base_quantity_range": [10, 50],
+      "temp_range": [18.0, 25.0],
+      "humidity_range": [30.0, 50.0],
+      "locations": ["Secure Vault A", "High-Value Storage"],
+      "quality_grades": ["Certified", "Premium"],
+      "suppliers": ["Swiss Timepieces", "Luxury Brands Inc"],
+      "anomaly_probability": 0.05
+    },
+    {
+      "name": "Hazardous Chemicals",
+      "category": "Chemicals",
+      "base_quantity_range": [20, 100],
+      "temp_range": [15.0, 20.0],
+      "humidity_range": [20.0, 40.0],
+      "locations": ["Hazmat Storage", "Chemical Containment"],
+      "quality_grades": ["Certified", "Industrial"],
+      "suppliers": ["ChemSafe Corp", "Industrial Chemicals"],
+      "anomaly_probability": 0.25
+    }
+  ],
+  "anomaly_scenarios": {
+    "equipment_failure": {
+      "description": "Simulate equipment failures affecting multiple products",
+      "probability": 0.02,
+      "duration_minutes": 30,
+      "affected_systems": ["refrigeration", "humidity_control", "temperature_monitoring"]
+    },
+    "power_outage": {
+      "description": "Simulate power outages affecting warehouse systems",
+      "probability": 0.01,
+      "duration_minutes": 60,
+      "affected_locations": ["All Warehouses"]
+    },
+    "supplier_issues": {
+      "description": "Simulate supplier delivery issues",
+      "probability": 0.05,
+      "effects": ["delayed_delivery", "quantity_shortage", "quality_degradation"]
+    }
+  },
+  "dashboard_settings": {
+    "enable_web_dashboard": false,
+    "dashboard_port": 8080,
+    "update_interval_seconds": 5
+  }
+}

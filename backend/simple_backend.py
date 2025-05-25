@@ -15,6 +15,8 @@ from datetime import datetime
 import hashlib
 import secrets
 import tempfile
+import jwt
+import time
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -47,6 +49,9 @@ users_db = {
 }
 
 active_sessions = {}
+
+# Secret key for JWT encoding/decoding
+SECRET_KEY = 'your_secret_key_here'
 
 # Service URLs
 ANOMALY_DETECTION_URL = 'http://localhost:5002'
@@ -549,6 +554,87 @@ def get_analytics_summary():
     except Exception as e:
         logger.error(f"Error getting analytics summary: {e}")
         return jsonify({'error': str(e)}), 500
+
+@app.route('/api/blockchain/submit-data', methods=['POST', 'OPTIONS'])
+def submit_blockchain_data():
+    """Submit data to blockchain network"""
+    if request.method == 'OPTIONS':
+        return handle_cors()
+    
+    try:
+        # Get the JWT token
+        auth_header = request.headers.get('Authorization')
+        if not auth_header or not auth_header.startswith('Bearer '):
+            return jsonify({'error': 'No token provided'}), 401
+        
+        token = auth_header.split(' ')[1]
+        
+        # Verify token
+        try:
+            payload = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
+            user_id = payload['user_id']
+            username = payload['username']
+        except jwt.InvalidTokenError:
+            return jsonify({'error': 'Invalid token'}), 401
+        
+        # Get data from request
+        data = request.get_json()
+        if not data:
+            return jsonify({'error': 'No data provided'}), 400
+        
+        # Add metadata
+        data['submittedBy'] = username
+        data['submittedAt'] = datetime.utcnow().isoformat()
+        data['transactionId'] = f"TX{int(time.time() * 1000)}"
+        
+        # Store in our in-memory blockchain simulation
+        supply_chain_data.append(data)
+        
+        # Log the submission
+        app.logger.info(f"Data submitted by {username}: {data.get('productId', 'Unknown')}")
+        
+        return jsonify({
+            'success': True,
+            'message': 'Data submitted successfully to blockchain',
+            'transactionId': data['transactionId'],
+            'blockHeight': len(supply_chain_data)
+        })
+        
+    except Exception as e:
+        app.logger.error(f"Error submitting blockchain data: {str(e)}")
+        return jsonify({'error': f'Failed to submit data: {str(e)}'}), 500
+
+@app.route('/favicon.ico')
+def favicon():
+    """Serve favicon"""
+    return '', 204  # No Content
+
+@app.route('/logo192.png')
+def logo():
+    """Serve logo placeholder"""
+    return '', 204  # No Content
+
+@app.errorhandler(404)
+def not_found(error):
+    """Handle 404 errors"""
+    app.logger.warning(f"404 error for path: {request.path}")
+    return jsonify({
+        'error': 'Endpoint not found',
+        'path': request.path,
+        'available_endpoints': [
+            '/api/auth/login',
+            '/api/auth/verify', 
+            '/api/supply-chain/query',
+            '/api/blockchain/submit-data',
+            '/health'
+        ]
+    }), 404
+
+@app.errorhandler(500)
+def internal_error(error):
+    """Handle 500 errors"""
+    app.logger.error(f"Internal server error: {str(error)}")
+    return jsonify({'error': 'Internal server error'}), 500
 
 if __name__ == '__main__':
     logger.info("Starting CryptaNet Backend Service on port 5004...")

@@ -38,7 +38,6 @@ export const anomalyService = {
       }
       
       // Try to use the anomaly detection service for enhanced detection
-      let serviceAnomalies = [];
       try {
         const anomalyResponse = await fetch('http://localhost:5002/detect', {
           method: 'POST',

@@ -1,85 +1,69 @@
 import React, { useState, useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { makeStyles } from '@material-ui/core/styles';
-import {
-  Paper,
-  Typography,
-  Grid,
-  Button,
-  TextField,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  Slider,
-  Box,
-  CircularProgress,
-  Snackbar,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  IconButton,
-  Card,
-  CardContent,
-} from '@material-ui/core';
-import { Alert } from '@material-ui/lab';
-import { Visibility, Search, InfoOutlined } from '@material-ui/icons';
-import { detectAnomalies, getAnomalyExplanation, clearError, clearSuccess, setSelectedAnomaly, clearSelectedAnomaly } from '../store/slices/anomalySlice';
+import { useSelector, useDispatch } from 'react-redux';
+import { 
+  Typography, Grid, Card, CardContent, Table, TableBody, TableCell, 
+  TableContainer, TableHead, TableRow, Button, Paper, FormControl, 
+  InputLabel, Select, MenuItem, TextField, CircularProgress, Dialog, 
+  DialogTitle, DialogContent, DialogActions, Snackbar, Alert, IconButton,
+  Slider
+} from '@mui/material';
+import { styled } from '@mui/material/styles';
+import { Search, InfoOutlined } from '@mui/icons-material';
+import { detectAnomalies, getAnomalyExplanation, clearError, clearSuccess, clearSelectedAnomaly } from '../store/slices/anomalySlice';
 
-const useStyles = makeStyles((theme) => ({
-  root: {
-    flexGrow: 1,
-  },
-  paper: {
-    padding: theme.spacing(2),
-    marginBottom: theme.spacing(2),
-  },
-  formControl: {
-    margin: theme.spacing(1),
-    minWidth: 120,
-  },
-  slider: {
-    width: '100%',
-    padding: theme.spacing(0, 2),
-  },
-  tableContainer: {
-    marginTop: theme.spacing(2),
-  },
-  loadingContainer: {
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: theme.spacing(4),
-  },
-  anomalyCard: {
-    backgroundColor: theme.palette.error.light,
-    marginBottom: theme.spacing(2),
-  },
-  explanationCard: {
-    marginTop: theme.spacing(2),
-  },
-  featureImportance: {
-    marginTop: theme.spacing(2),
-  },
-  featureBar: {
-    height: 20,
-    borderRadius: 5,
-    marginTop: 5,
-    marginBottom: 10,
-  },
+const Root = styled('div')(({ theme }) => ({
+  flexGrow: 1,
 }));
 
+const StyledPaper = styled(Paper)(({ theme }) => ({
+  padding: theme.spacing(2),
+  marginBottom: theme.spacing(2),
+}));
+
+const StyledFormControl = styled(FormControl)(({ theme }) => ({
+  margin: theme.spacing(1),
+  minWidth: 120,
+}));
+
+const StyledSlider = styled(Slider)(({ theme }) => ({
+  width: '100%',
+  padding: theme.spacing(0, 2),
+}));
+
+const TableContainerStyled = styled(TableContainer)(({ theme }) => ({
+  marginTop: theme.spacing(2),
+}));
+
+const LoadingContainer = styled('div')(({ theme }) => ({
+  display: 'flex',
+  justifyContent: 'center',
+  alignItems: 'center',
+  padding: theme.spacing(4),
+}));
+
+const AnomalyCard = styled(Card)(({ theme }) => ({
+  backgroundColor: theme.palette.error.light,
+  marginBottom: theme.spacing(2),
+}));
+
+const ExplanationCard = styled(Card)(({ theme }) => ({
+  marginTop: theme.spacing(2),
+}));
+
+const FeatureImportanceContainer = styled('div')(({ theme }) => ({
+  marginTop: theme.spacing(2),
+}));
+
+const FeatureBar = styled('div')({
+  height: 20,
+  borderRadius: 5,
+  marginTop: 5,
+  marginBottom: 10,
+});
+
 const AnomalyDetection = () => {
-  const classes = useStyles();
   const dispatch = useDispatch();
-  const { anomalies, selectedAnomaly, explanation, loading, error, success } = useSelector((state) => state.anomaly);
+  const { anomalies, explanation, loading, error, success } = useSelector((state) => state.anomaly);
   const { user } = useSelector((state) => state.auth);
   const [queryParams, setQueryParams] = useState({
     dataType: 'all',
@@ -90,22 +74,18 @@ const AnomalyDetection = () => {
   const [explanationOpen, setExplanationOpen] = useState(false);
 
   useEffect(() => {
-    // Set default date range to last 7 days
-    const endDate = new Date();
-    const startDate = new Date();
-    startDate.setDate(startDate.getDate() - 7);
-    
-    setQueryParams({
+    // Initial data fetch
+    dispatch(detectAnomalies({
+      organizationId: user?.organization || 'Org1MSP',
       ...queryParams,
-      startTime: startDate.toISOString().split('T')[0],
-      endTime: endDate.toISOString().split('T')[0],
-    });
-  }, []);
+    }));
+  }, [dispatch, user]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleQueryChange = (e) => {
+    const { name, value } = e.target;
     setQueryParams({
       ...queryParams,
-      [e.target.name]: e.target.value,
+      [name]: value,
     });
   };
 
@@ -150,7 +130,7 @@ const AnomalyDetection = () => {
     const maxImportance = Math.max(...features.map(f => Math.abs(f.importance)));
     
     return (
-      <div className={classes.featureImportance}>
+      <FeatureImportanceContainer>
         <Typography variant="h6">Feature Importance</Typography>
         {features.map((feature, index) => {
           const importance = feature.importance;
@@ -167,31 +147,30 @@ const AnomalyDetection = () => {
                   <Typography variant="body2">{importance.toFixed(4)}</Typography>
                 </Grid>
               </Grid>
-              <div 
-                className={classes.featureBar} 
-                style={{ width, backgroundColor: color }}
+              <FeatureBar 
+                sx={{ width, backgroundColor: color }}
               />
             </div>
           );
         })}
-      </div>
+      </FeatureImportanceContainer>
     );
   };
 
   return (
-    <div className={classes.root}>
+    <Root>
       <Typography variant="h4" gutterBottom>
         Anomaly Detection
       </Typography>
 
-      <Paper className={classes.paper}>
+      <StyledPaper>
         <Typography variant="h6" gutterBottom>
           Detect Anomalies in Supply Chain Data
         </Typography>
         <form onSubmit={handleDetectAnomalies}>
           <Grid container spacing={2}>
             <Grid item xs={12} sm={6} md={3}>
-              <FormControl fullWidth variant="outlined" className={classes.formControl}>
+              <StyledFormControl fullWidth variant="outlined">
                 <InputLabel id="data-type-label">Data Type</InputLabel>
                 <Select
                   labelId="data-type-label"
@@ -206,7 +185,7 @@ const AnomalyDetection = () => {
                   <MenuItem value="humidity">Humidity</MenuItem>
                   <MenuItem value="location">Location</MenuItem>
                 </Select>
-              </FormControl>
+              </StyledFormControl>
             </Grid>
             <Grid item xs={12} sm={6} md={3}>
               <TextField
@@ -238,7 +217,7 @@ const AnomalyDetection = () => {
               <Typography id="threshold-slider" gutterBottom>
                 Anomaly Threshold: {queryParams.threshold}
               </Typography>
-              <Slider
+              <StyledSlider
                 value={queryParams.threshold}
                 onChange={handleThresholdChange}
                 aria-labelledby="threshold-slider"
@@ -247,7 +226,6 @@ const AnomalyDetection = () => {
                 marks
                 min={0}
                 max={1}
-                className={classes.slider}
               />
             </Grid>
             <Grid item xs={12}>
@@ -258,17 +236,29 @@ const AnomalyDetection = () => {
                 startIcon={<Search />}
                 disabled={loading}
               >
-                Detect Anomalies
+                {loading ? <CircularProgress size={24} /> : 'Detect Anomalies'}
               </Button>
             </Grid>
           </Grid>
         </form>
-      </Paper>
+      </StyledPaper>
+
+      {error && (
+        <Alert severity="error" sx={{ marginBottom: 2 }}>
+          {error}
+        </Alert>
+      )}
+
+      {success && (
+        <Alert severity="success" sx={{ marginBottom: 2 }}>
+          {success}
+        </Alert>
+      )}
 
       {loading ? (
-        <div className={classes.loadingContainer}>
+        <LoadingContainer>
           <CircularProgress />
-        </div>
+        </LoadingContainer>
       ) : (
         <>
           {anomalies && anomalies.length > 0 ? (
@@ -276,13 +266,13 @@ const AnomalyDetection = () => {
               <Typography variant="h6" gutterBottom>
                 Detected Anomalies ({anomalies.length})
               </Typography>
-              <TableContainer component={Paper} className={classes.tableContainer}>
+              <TableContainerStyled component={Paper}>
                 <Table>
                   <TableHead>
                     <TableRow>
                       <TableCell>ID</TableCell>
                       <TableCell>Product ID</TableCell>
-                      <TableCell>Type</TableCell>
+                      <TableCell>Data Type</TableCell>
                       <TableCell>Timestamp</TableCell>
                       <TableCell>Anomaly Score</TableCell>
                       <TableCell>Actions</TableCell>
@@ -305,15 +295,15 @@ const AnomalyDetection = () => {
                     ))}
                   </TableBody>
                 </Table>
-              </TableContainer>
+              </TableContainerStyled>
             </>
           ) : (
             anomalies && (
-              <Paper className={classes.paper}>
+              <StyledPaper>
                 <Typography variant="body1" align="center">
                   No anomalies detected with the current threshold.
                 </Typography>
-              </Paper>
+              </StyledPaper>
             )
           )}
         </>
@@ -324,13 +314,13 @@ const AnomalyDetection = () => {
         <DialogTitle>Anomaly Explanation</DialogTitle>
         <DialogContent>
           {loading ? (
-            <div className={classes.loadingContainer}>
+            <LoadingContainer>
               <CircularProgress />
-            </div>
+            </LoadingContainer>
           ) : explanation ? (
             <Grid container spacing={2}>
               <Grid item xs={12}>
-                <Card className={classes.anomalyCard}>
+                <AnomalyCard>
                   <CardContent>
                     <Typography variant="h6">Anomaly Details</Typography>
                     <Grid container spacing={2}>
@@ -356,11 +346,11 @@ const AnomalyDetection = () => {
                       </Grid>
                     </Grid>
                   </CardContent>
-                </Card>
+                </AnomalyCard>
               </Grid>
               
               <Grid item xs={12}>
-                <Card className={classes.explanationCard}>
+                <ExplanationCard>
                   <CardContent>
                     <Typography variant="h6">Explanation</Typography>
                     <Typography variant="body1" paragraph>
@@ -369,7 +359,7 @@ const AnomalyDetection = () => {
                     
                     {renderFeatureImportance(explanation.featureImportance)}
                     
-                    <Typography variant="subtitle1" style={{ marginTop: 16 }}>
+                    <Typography variant="subtitle1" sx={{ marginTop: 2 }}>
                       Blockchain Verification:
                     </Typography>
                     <Typography variant="body2">
@@ -382,7 +372,7 @@ const AnomalyDetection = () => {
                       Timestamp: {explanation.blockTimestamp ? new Date(explanation.blockTimestamp).toLocaleString() : 'N/A'}
                     </Typography>
                   </CardContent>
-                </Card>
+                </ExplanationCard>
               </Grid>
             </Grid>
           ) : (
@@ -404,7 +394,7 @@ const AnomalyDetection = () => {
           {error || 'Operation completed successfully'}
         </Alert>
       </Snackbar>
-    </div>
+    </Root>
   );
 };
 

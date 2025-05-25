@@ -1,64 +1,38 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { makeStyles } from '@material-ui/core/styles';
-import {
-  Paper,
-  Typography,
-  Grid,
-  Button,
-  TextField,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  Tabs,
-  Tab,
-  Box,
-  CircularProgress,
-  Snackbar,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  IconButton,
-} from '@material-ui/core';
-import { Alert } from '@material-ui/lab';
-import { Visibility, Add, Search } from '@material-ui/icons';
-import { fetchSupplyChainData, submitSupplyChainData, retrieveSupplyChainData, clearError, clearSuccess, setSelectedData, clearSelectedData } from '../store/slices/supplyChainSlice';
+import { styled } from '@mui/material/styles';
+import { Paper, Typography, Grid, Button, TextField, FormControl, InputLabel, Select, MenuItem, Tabs, Tab, Box, CircularProgress, Snackbar, Dialog, DialogTitle, DialogContent, DialogActions, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, IconButton,  } from '@mui/material';
+import { Alert } from '@mui/material';
+import { Visibility, Add, Search } from '@mui/icons-material';
+import { fetchSupplyChainData, submitSupplyChainData, retrieveSupplyChainData, clearError, clearSuccess, clearSelectedData } from '../store/slices/supplyChainSlice';
 
-const useStyles = makeStyles((theme) => ({
-  root: {
-    flexGrow: 1,
-  },
-  paper: {
-    padding: theme.spacing(2),
-    marginBottom: theme.spacing(2),
-  },
-  formControl: {
-    margin: theme.spacing(1),
-    minWidth: 120,
-  },
-  submitButton: {
-    margin: theme.spacing(2, 0),
-  },
-  tabContent: {
-    padding: theme.spacing(2),
-  },
-  tableContainer: {
-    marginTop: theme.spacing(2),
-  },
-  loadingContainer: {
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: theme.spacing(4),
-  },
+const Root = styled('div')(({ theme }) => ({
+  flexGrow: 1,
+}));
+
+const StyledPaper = styled(Paper)(({ theme }) => ({
+  padding: theme.spacing(2),
+  marginBottom: theme.spacing(2),
+}));
+
+const StyledFormControl = styled(FormControl)(({ theme }) => ({
+  margin: theme.spacing(1),
+  minWidth: 120,
+}));
+
+const SubmitButton = styled(Button)(({ theme }) => ({
+  margin: theme.spacing(2, 0),
+}));
+
+const TableContainerStyled = styled(TableContainer)(({ theme }) => ({
+  marginTop: theme.spacing(2),
+}));
+
+const LoadingContainer = styled('div')(({ theme }) => ({
+  display: 'flex',
+  justifyContent: 'center',
+  alignItems: 'center',
+  padding: theme.spacing(4),
 }));
 
 function TabPanel(props) {
@@ -78,7 +52,6 @@ function TabPanel(props) {
 }
 
 const SupplyChainData = () => {
-  const classes = useStyles();
   const dispatch = useDispatch();
   const { data, selectedData, loading, submitting, error, success } = useSelector((state) => state.supplyChain);
   const { user } = useSelector((state) => state.auth);
@@ -87,44 +60,31 @@ const SupplyChainData = () => {
     dataType: 'all',
     startTime: '',
     endTime: '',
-    includeAnomaliesOnly: false,
+    productId: '',
   });
   const [newData, setNewData] = useState({
     productId: '',
     product: '',
-    timestamp: new Date().toISOString(),
-    location: '',
+    dataType: 'temperature',
     temperature: '',
     humidity: '',
-    dataType: 'temperature',
+    location: '',
     accessControl: {
       isPublic: true,
-      authorizedOrgs: [],
+      allowedOrgs: [],
     },
   });
   const [detailsOpen, setDetailsOpen] = useState(false);
-
-  useEffect(() => {
-    // Set default date range to last 7 days
-    const endDate = new Date();
-    const startDate = new Date();
-    startDate.setDate(startDate.getDate() - 7);
-    
-    setQueryParams(prevParams => ({
-      ...prevParams,
-      startTime: startDate.toISOString().split('T')[0],
-      endTime: endDate.toISOString().split('T')[0],
-    }));
-  }, []);
 
   const handleTabChange = (event, newValue) => {
     setTabValue(newValue);
   };
 
   const handleQueryChange = (e) => {
+    const { name, value } = e.target;
     setQueryParams({
       ...queryParams,
-      [e.target.name]: e.target.value,
+      [name]: value,
     });
   };
 
@@ -182,12 +142,12 @@ const SupplyChainData = () => {
   };
 
   return (
-    <div className={classes.root}>
+    <Root>
       <Typography variant="h4" gutterBottom>
         Supply Chain Data
       </Typography>
 
-      <Paper className={classes.paper}>
+      <StyledPaper>
         <Tabs value={tabValue} onChange={handleTabChange} indicatorColor="primary" textColor="primary">
           <Tab label="Query Data" />
           <Tab label="Submit New Data" />
@@ -197,7 +157,7 @@ const SupplyChainData = () => {
           <form onSubmit={handleQuerySubmit}>
             <Grid container spacing={2}>
               <Grid item xs={12} sm={6} md={3}>
-                <FormControl fullWidth variant="outlined" className={classes.formControl}>
+                <StyledFormControl fullWidth variant="outlined">
                   <InputLabel id="data-type-label">Data Type</InputLabel>
                   <Select
                     labelId="data-type-label"
@@ -212,7 +172,7 @@ const SupplyChainData = () => {
                     <MenuItem value="humidity">Humidity</MenuItem>
                     <MenuItem value="location">Location</MenuItem>
                   </Select>
-                </FormControl>
+                </StyledFormControl>
               </Grid>
               <Grid item xs={12} sm={6} md={3}>
                 <TextField
@@ -256,11 +216,11 @@ const SupplyChainData = () => {
           </form>
 
           {loading ? (
-            <div className={classes.loadingContainer}>
+            <LoadingContainer>
               <CircularProgress />
-            </div>
+            </LoadingContainer>
           ) : (
-            <TableContainer component={Paper} className={classes.tableContainer}>
+            <TableContainerStyled component={Paper}>
               <Table>
                 <TableHead>
                   <TableRow>
@@ -360,7 +320,7 @@ const SupplyChainData = () => {
                   )}
                 </TableBody>
               </Table>
-            </TableContainer>
+            </TableContainerStyled>
           )}
         </TabPanel>
 
@@ -393,7 +353,7 @@ const SupplyChainData = () => {
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
-                <FormControl fullWidth variant="outlined">
+                <StyledFormControl fullWidth variant="outlined">
                   <InputLabel id="new-data-type-label">Data Type</InputLabel>
                   <Select
                     labelId="new-data-type-label"
@@ -407,7 +367,7 @@ const SupplyChainData = () => {
                     <MenuItem value="humidity">Humidity</MenuItem>
                     <MenuItem value="location">Location</MenuItem>
                   </Select>
-                </FormControl>
+                </StyledFormControl>
               </Grid>
               
               {newData.dataType === 'temperature' && (
@@ -458,7 +418,7 @@ const SupplyChainData = () => {
               )}
               
               <Grid item xs={12} sm={6}>
-                <FormControl fullWidth variant="outlined">
+                <StyledFormControl fullWidth variant="outlined">
                   <InputLabel id="access-control-label">Access Control</InputLabel>
                   <Select
                     labelId="access-control-label"
@@ -471,25 +431,24 @@ const SupplyChainData = () => {
                     <MenuItem value={true}>Public</MenuItem>
                     <MenuItem value={false}>Private</MenuItem>
                   </Select>
-                </FormControl>
+                </StyledFormControl>
               </Grid>
               
               <Grid item xs={12}>
-                <Button
+                <SubmitButton
                   type="submit"
                   variant="contained"
                   color="primary"
-                  className={classes.submitButton}
                   startIcon={<Add />}
                   disabled={submitting}
                 >
                   {submitting ? 'Submitting...' : 'Submit Data'}
-                </Button>
+                </SubmitButton>
               </Grid>
             </Grid>
           </form>
         </TabPanel>
-      </Paper>
+      </StyledPaper>
 
       {/* Details Dialog */}
       <Dialog open={detailsOpen} onClose={handleCloseDetails} maxWidth="md" fullWidth>
@@ -553,9 +512,9 @@ const SupplyChainData = () => {
               </Grid>
             </Grid>
           ) : (
-            <div className={classes.loadingContainer}>
+            <LoadingContainer>
               <CircularProgress />
-            </div>
+            </LoadingContainer>
           )}
         </DialogContent>
         <DialogActions>
@@ -568,10 +527,10 @@ const SupplyChainData = () => {
       {/* Snackbar for notifications */}
       <Snackbar open={!!error || success} autoHideDuration={6000} onClose={handleCloseSnackbar}>
         <Alert onClose={handleCloseSnackbar} severity={error ? 'error' : 'success'}>
-          {error || 'Operation completed successfully'}
+          {error || success}
         </Alert>
       </Snackbar>
-    </div>
+    </Root>
   );
 };
 

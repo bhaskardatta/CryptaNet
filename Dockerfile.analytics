@@ -1,0 +1,123 @@
+# CryptaNet Analytics Engine Dockerfile
+# Standalone analytics processing service
+
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    curl \
+    gcc \
+    g++ \
+    cron \
+    && rm -rf /var/lib/apt/lists/*
+
+# Create non-root user
+RUN groupadd -r cryptanet && useradd -r -g cryptanet cryptanet
+
+# Copy requirements from root directory
+COPY requirements.txt .
+
+# Install Python dependencies including analytics modules
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt && \
+    pip install --no-cache-dir aiohttp asyncio
+
+# Copy all analytics modules
+COPY integrated_analytics.py .
+COPY advanced_anomaly_detection.py .
+COPY predictive_analytics.py .
+COPY real_time_alerting.py .
+COPY large_scale_testing.py .
+
+# Create analytics service wrapper
+COPY <<EOF analytics_service.py
+#!/usr/bin/env python3
+import time
+import schedule
+import logging
+from datetime import datetime
+import integrated_analytics
+import signal
+import sys
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler('/app/logs/analytics_service.log'),
+        logging.StreamHandler()
+    ]
+)
+
+class AnalyticsService:
+    def __init__(self):
+        self.running = True
+        self.analytics_system = integrated_analytics.IntegratedAnalyticsSystem()
+        
+    def run_analytics(self):
+        """Run comprehensive analytics"""
+        try:
+            logging.info("Starting comprehensive analytics run...")
+            results = self.analytics_system.run_comprehensive_analysis()
+            
+            # Save results with timestamp
+            timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+            filename = f"/app/data/analytics_results_{timestamp}.json"
+            
+            with open(filename, 'w') as f:
+                import json
+                json.dump(results, f, indent=2, default=str)
+            
+            logging.info(f"Analytics completed. Results saved to {filename}")
+            
+        except Exception as e:
+            logging.error(f"Analytics run failed: {e}")
+    
+    def signal_handler(self, signum, frame):
+        """Handle shutdown signals"""
+        logging.info("Received shutdown signal. Stopping analytics service...")
+        self.running = False
+        sys.exit(0)
+    
+    def start(self):
+        """Start the analytics service"""
+        signal.signal(signal.SIGINT, self.signal_handler)
+        signal.signal(signal.SIGTERM, self.signal_handler)
+        
+        # Schedule analytics to run every hour
+        schedule.every(1).hours.do(self.run_analytics)
+        
+        # Run initial analytics
+        self.run_analytics()
+        
+        logging.info("Analytics service started. Running every hour...")
+        
+        while self.running:
+            schedule.run_pending()
+            time.sleep(60)
+
+if __name__ == "__main__":
+    service = AnalyticsService()
+    service.start()
+EOF
+
+# Create directories and set permissions
+RUN mkdir -p /app/data /app/logs /app/models && \
+    chown -R cryptanet:cryptanet /app
+
+# Environment variables
+ENV PYTHONPATH=/app
+ENV PYTHONUNBUFFERED=1
+
+# Security: Run as non-root
+USER cryptanet
+
+# Health check
+HEALTHCHECK --interval=60s --timeout=10s --start-period=10s --retries=3 \
+    CMD test -f /app/logs/analytics_service.log || exit 1
+
+# Start analytics service
+CMD ["python", "analytics_service.py"]

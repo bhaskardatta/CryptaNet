@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
-import { makeStyles } from '@material-ui/core/styles';
+import { styled } from '@mui/material/styles';
 import {
   AppBar,
   Toolbar,
@@ -17,58 +17,68 @@ import {
   Menu,
   MenuItem,
   Avatar,
-  Hidden,
-} from '@material-ui/core';
+  useMediaQuery,
+  useTheme,
+} from '@mui/material';
 import {
   Menu as MenuIcon,
   Dashboard as DashboardIcon,
   Storage as StorageIcon,
   ShowChart as ShowChartIcon,
+  Timeline as TimelineIcon,
+  MonitorHeart as MonitorHeartIcon,
   Info as InfoIcon,
   Settings as SettingsIcon,
   ExitToApp as LogoutIcon,
   AccountCircle,
-} from '@material-ui/icons';
+} from '@mui/icons-material';
 import { logout } from '../../store/slices/authSlice';
 
 const drawerWidth = 240;
 
-const useStyles = makeStyles((theme) => ({
-  root: {
-    display: 'flex',
-  },
-  appBar: {
-    zIndex: theme.zIndex.drawer + 1,
-  },
-  drawer: {
+const Root = styled('div')({
+  display: 'flex',
+});
+
+const StyledAppBar = styled(AppBar)(({ theme }) => ({
+  zIndex: theme.zIndex.drawer + 1,
+}));
+
+const StyledDrawer = styled(Drawer)({
+  width: drawerWidth,
+  flexShrink: 0,
+  '& .MuiDrawer-paper': {
     width: drawerWidth,
-    flexShrink: 0,
   },
-  drawerPaper: {
-    width: drawerWidth,
+});
+
+const Content = styled('main')(({ theme }) => ({
+  flexGrow: 1,
+  padding: theme.spacing(3),
+}));
+
+const Toolbar2 = styled('div')(({ theme }) => ({
+  ...theme.mixins.toolbar,
+}));
+
+const Title = styled(Typography)({
+  flexGrow: 1,
+});
+
+const MenuButton = styled(IconButton)(({ theme }) => ({
+  marginRight: theme.spacing(2),
+  [theme.breakpoints.up('md')]: {
+    display: 'none',
   },
-  drawerContainer: {
-    overflow: 'auto',
-  },
-  content: {
-    flexGrow: 1,
-    padding: theme.spacing(3),
-  },
-  toolbar: theme.mixins.toolbar,
-  title: {
-    flexGrow: 1,
-  },
-  menuButton: {
-    marginRight: theme.spacing(2),
-    [theme.breakpoints.up('md')]: {
-      display: 'none',
-    },
-  },
-  avatar: {
-    cursor: 'pointer',
-    backgroundColor: theme.palette.primary.main,
-  },
-  activeListItem: {
+}));
+
+const StyledAvatar = styled(Avatar)(({ theme }) => ({
+  cursor: 'pointer',
+  backgroundColor: theme.palette.primary.main,
+}));
+
+const ActiveListItem = styled(ListItem)(({ theme, active }) => ({
+  ...(active && {
     backgroundColor: theme.palette.action.selected,
     '& .MuiListItemIcon-root': {
       color: theme.palette.primary.main,
@@ -77,14 +87,15 @@ const useStyles = makeStyles((theme) => ({
       fontWeight: 'bold',
       color: theme.palette.primary.main,
     },
-  },
+  }),
 }));
 
 const Layout = () => {
-  const classes = useStyles();
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const { user } = useSelector((state) => state.auth);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
@@ -116,27 +127,29 @@ const Layout = () => {
     { text: 'Dashboard', icon: <DashboardIcon />, path: '/' },
     { text: 'Supply Chain Data', icon: <StorageIcon />, path: '/supply-chain-data' },
     { text: 'Anomaly Detection', icon: <ShowChartIcon />, path: '/anomaly-detection' },
+    { text: 'Real-Time Analytics', icon: <TimelineIcon />, path: '/analytics' },
+    { text: 'System Health', icon: <MonitorHeartIcon />, path: '/system-health' },
     { text: 'Explainability', icon: <InfoIcon />, path: '/explainability' },
     { text: 'Settings', icon: <SettingsIcon />, path: '/settings' },
   ];
 
   const drawer = (
     <div>
-      <div className={classes.toolbar} />
+      <Toolbar2 />
       <Divider />
       <List>
         {menuItems.map((item) => {
           const isActive = location.pathname === item.path;
           return (
-            <ListItem
+            <ActiveListItem
               button
               key={item.text}
               onClick={() => handleNavigation(item.path)}
-              className={isActive ? classes.activeListItem : ''}
+              active={isActive}
             >
               <ListItemIcon>{item.icon}</ListItemIcon>
               <ListItemText primary={item.text} />
-            </ListItem>
+            </ActiveListItem>
           );
         })}
       </List>
@@ -144,21 +157,22 @@ const Layout = () => {
   );
 
   return (
-    <div className={classes.root}>
-      <AppBar position="fixed" className={classes.appBar}>
+    <Root>
+      <StyledAppBar position="fixed">
         <Toolbar>
-          <IconButton
-            color="inherit"
-            aria-label="open drawer"
-            edge="start"
-            onClick={handleDrawerToggle}
-            className={classes.menuButton}
-          >
-            <MenuIcon />
-          </IconButton>
-          <Typography variant="h6" noWrap className={classes.title}>
+          {isMobile && (
+            <MenuButton
+              color="inherit"
+              aria-label="open drawer"
+              edge="start"
+              onClick={handleDrawerToggle}
+            >
+              <MenuIcon />
+            </MenuButton>
+          )}
+          <Title variant="h6" noWrap>
             CryptaNet
-          </Typography>
+          </Title>
           <div>
             <IconButton
               edge="end"
@@ -168,9 +182,9 @@ const Layout = () => {
               color="inherit"
             >
               {user?.username ? (
-                <Avatar className={classes.avatar}>
+                <StyledAvatar>
                   {user.username.charAt(0).toUpperCase()}
-                </Avatar>
+                </StyledAvatar>
               ) : (
                 <AccountCircle />
               )}
@@ -202,44 +216,33 @@ const Layout = () => {
             </Menu>
           </div>
         </Toolbar>
-      </AppBar>
+      </StyledAppBar>
 
-      <Hidden mdUp implementation="css">
-        <Drawer
+      {isMobile ? (
+        <StyledDrawer
           variant="temporary"
           anchor="left"
           open={mobileOpen}
           onClose={handleDrawerToggle}
-          classes={{
-            paper: classes.drawerPaper,
-          }}
           ModalProps={{
-            keepMounted: true, // Better open performance on mobile
+            keepMounted: true,
           }}
         >
           {drawer}
-        </Drawer>
-      </Hidden>
-
-      <Hidden smDown implementation="css">
-        <Drawer
-          className={classes.drawer}
-          variant="permanent"
-          classes={{
-            paper: classes.drawerPaper,
-          }}
-        >
+        </StyledDrawer>
+      ) : (
+        <StyledDrawer variant="permanent">
           {drawer}
-        </Drawer>
-      </Hidden>
+        </StyledDrawer>
+      )}
 
-      <main className={classes.content}>
-        <div className={classes.toolbar} />
+      <Content>
+        <Toolbar2 />
         <Container maxWidth="lg">
           <Outlet />
         </Container>
-      </main>
-    </div>
+      </Content>
+    </Root>
   );
 };
 

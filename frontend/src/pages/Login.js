@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { makeStyles } from '@material-ui/core/styles';
+import { styled } from '@mui/material/styles';
 import {
   Container,
   Paper,
@@ -10,51 +10,48 @@ import {
   Button,
   CircularProgress,
   Snackbar,
-  Grid,
   Box,
-} from '@material-ui/core';
-import { Alert } from '@material-ui/lab';
-import { LockOutlined } from '@material-ui/icons';
+  Alert,
+} from '@mui/material';
+import { LockOutlined } from '@mui/icons-material';
 import { login, clearError } from '../store/slices/authSlice';
 
-const useStyles = makeStyles((theme) => ({
-  root: {
-    height: '100vh',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: theme.palette.background.default,
-  },
-  paper: {
-    padding: theme.spacing(4),
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    maxWidth: 400,
-    width: '100%',
-  },
-  logo: {
-    marginBottom: theme.spacing(2),
-  },
-  form: {
-    width: '100%',
-    marginTop: theme.spacing(1),
-  },
-  submit: {
-    margin: theme.spacing(3, 0, 2),
-  },
-  lockIcon: {
-    fontSize: 40,
-    padding: theme.spacing(1),
-    backgroundColor: theme.palette.primary.main,
-    color: 'white',
-    borderRadius: '50%',
-    marginBottom: theme.spacing(2),
-  },
+const Root = styled('div')(({ theme }) => ({
+  height: '100vh',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  backgroundColor: theme.palette.background.default,
+}));
+
+const StyledPaper = styled(Paper)(({ theme }) => ({
+  padding: theme.spacing(4),
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+  maxWidth: 400,
+  width: '100%',
+}));
+
+const Form = styled('form')(({ theme }) => ({
+  width: '100%',
+  marginTop: theme.spacing(1),
+}));
+
+const SubmitButton = styled(Button)(({ theme }) => ({
+  margin: theme.spacing(3, 0, 2),
+}));
+
+const LockIcon = styled(LockOutlined)(({ theme }) => ({
+  fontSize: 40,
+  padding: theme.spacing(1),
+  backgroundColor: theme.palette.primary.main,
+  color: 'white',
+  borderRadius: '50%',
+  marginBottom: theme.spacing(2),
 }));
 
 const Login = () => {
-  const classes = useStyles();
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { loading, error } = useSelector((state) => state.auth);
@@ -83,11 +80,11 @@ const Login = () => {
   };
 
   return (
-    <div className={classes.root}>
+    <Root>
       <Container component="main" maxWidth="xs">
-        <Paper className={classes.paper} elevation={3}>
+        <StyledPaper elevation={3}>
           <Box display="flex" flexDirection="column" alignItems="center">
-            <LockOutlined className={classes.lockIcon} />
+            <LockIcon />
             <Typography component="h1" variant="h5">
               CryptaNet
             </Typography>
@@ -96,7 +93,7 @@ const Login = () => {
             </Typography>
           </Box>
 
-          <form className={classes.form} onSubmit={handleSubmit}>
+          <Form onSubmit={handleSubmit}>
             <TextField
               variant="outlined"
               margin="normal"
@@ -123,26 +120,25 @@ const Login = () => {
               value={credentials.password}
               onChange={handleChange}
             />
-            <Button
+            <SubmitButton
               type="submit"
               fullWidth
               variant="contained"
               color="primary"
-              className={classes.submit}
               disabled={loading}
             >
               {loading ? <CircularProgress size={24} /> : 'Sign In'}
-            </Button>
-          </form>
+            </SubmitButton>
+          </Form>
 
           <Snackbar open={!!error} autoHideDuration={6000} onClose={handleCloseSnackbar}>
             <Alert onClose={handleCloseSnackbar} severity="error">
               {error}
             </Alert>
           </Snackbar>
-        </Paper>
+        </StyledPaper>
       </Container>
-    </div>
+    </Root>
   );
 };
 

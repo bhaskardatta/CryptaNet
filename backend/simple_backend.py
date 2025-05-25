@@ -555,6 +555,212 @@ def get_analytics_summary():
         logger.error(f"Error getting analytics summary: {e}")
         return jsonify({'error': str(e)}), 500
 
+@app.route('/api/analytics/real-time', methods=['GET'])
+def get_real_time_analytics():
+    """Get real-time analytics data for the dashboard"""
+    try:
+        auth_header = request.headers.get('Authorization')
+        if not auth_header or not auth_header.startswith('Bearer '):
+            return jsonify({'error': 'No token provided'}), 401
+        
+        token = auth_header.split(' ')[1]
+        session = active_sessions.get(token)
+        
+        if not session:
+            return jsonify({'error': 'Invalid or expired token'}), 401
+        
+        current_time = datetime.now()
+        
+        # Calculate basic metrics
+        total_products = len(supply_chain_data)
+        anomalies = [item for item in supply_chain_data if item.get('is_anomaly', False)]
+        anomalies_detected = len(anomalies)
+        anomaly_rate = (anomalies_detected / total_products * 100) if total_products > 0 else 0
+        
+        # Calculate average environmental conditions
+        temperatures = [float(item.get('data', {}).get('temperature', 0)) for item in supply_chain_data if item.get('data', {}).get('temperature')]
+        humidities = [float(item.get('data', {}).get('humidity', 0)) for item in supply_chain_data if item.get('data', {}).get('humidity')]
+        
+        avg_temperature = sum(temperatures) / len(temperatures) if temperatures else 0
+        avg_humidity = sum(humidities) / len(humidities) if humidities else 0
+        
+        # Get recent data (last 10 items)
+        recent_data = sorted(supply_chain_data, key=lambda x: x.get('timestamp', ''), reverse=True)[:10]
+        recent_formatted = []
+        for item in recent_data:
+            recent_formatted.append({
+                'productId': item.get('productId', ''),
+                'product': item.get('product', ''),
+                'isAnomaly': item.get('is_anomaly', False),
+                'timestamp': item.get('timestamp', ''),
+                'anomalyScore': item.get('anomaly_score', 0)
+            })
+        
+        # Create time series data (group by hour)
+        time_series_data = []
+        time_grouped = {}
+        
+        for item in supply_chain_data:
+            timestamp = item.get('timestamp', '')
+            if timestamp:
+                try:
+                    dt = datetime.fromisoformat(timestamp.replace('Z', '+00:00'))
+                    hour_key = dt.strftime('%H:%M')
+                    
+                    if hour_key not in time_grouped:
+                        time_grouped[hour_key] = {
+                            'timestamp': hour_key,
+                            'temperature': [],
+                            'humidity': [],
+                            'count': 0
+                        }
+                    
+                    data = item.get('data', {})
+                    if data.get('temperature'):
+                        time_grouped[hour_key]['temperature'].append(float(data['temperature']))
+                    if data.get('humidity'):
+                        time_grouped[hour_key]['humidity'].append(float(data['humidity']))
+                    time_grouped[hour_key]['count'] += 1
+                except Exception as e:
+                    logger.warning(f"Error parsing timestamp: {e}")
+        
+        # Calculate averages for time series
+        for hour_key in time_grouped:
+            temps = time_grouped[hour_key]['temperature']
+            hums = time_grouped[hour_key]['humidity']
+            
+            time_series_data.append({
+                'timestamp': hour_key,
+                'temperature': sum(temps) / len(temps) if temps else 0,
+                'humidity': sum(hums) / len(hums) if hums else 0,
+                'count': time_grouped[hour_key]['count']
+            })
+        
+        # Sort time series by timestamp
+        time_series_data = sorted(time_series_data, key=lambda x: x['timestamp'])
+        
+        # Product distribution
+        product_counts = {}
+        for item in supply_chain_data:
+            product = item.get('product', 'Unknown')
+            product_type = product.split()[0] if product else 'Unknown'  # Get first word as category
+            product_counts[product_type] = product_counts.get(product_type, 0) + 1
+        
+        product_distribution = [
+            {'name': product, 'value': count}
+            for product, count in product_counts.items()
+        ]
+        
+        # Organization metrics
+        org_metrics = {}
+        for item in supply_chain_data:
+            org = item.get('organizationId', 'Unknown')
+            if org not in org_metrics:
+                org_metrics[org] = {'totalProducts': 0, 'anomalies': 0}
+            
+            org_metrics[org]['totalProducts'] += 1
+            if item.get('is_anomaly', False):
+                org_metrics[org]['anomalies'] += 1
+        
+        organization_metrics = [
+            {
+                'organization': org,
+                'totalProducts': metrics['totalProducts'],
+                'anomalies': metrics['anomalies']
+            }
+            for org, metrics in org_metrics.items()
+        ]
+        
+        # Generate alerts for high-risk items
+        alerts = []
+        high_risk_items = [item for item in supply_chain_data if item.get('risk_level') == 'HIGH']
+        
+        if len(high_risk_items) > 0:
+            alerts.append({
+                'message': f'{len(high_risk_items)} high-risk items detected',
+                'severity': 'HIGH',
+                'timestamp': current_time.isoformat()
+            })
+        
+        if anomaly_rate > 20:  # More than 20% anomaly rate
+            alerts.append({
+                'message': f'High anomaly rate: {anomaly_rate:.1f}%',
+                'severity': 'MEDIUM',
+                'timestamp': current_time.isoformat()
+            })
+        
+        return jsonify({
+            'totalProducts': total_products,
+            'anomaliesDetected': anomalies_detected,
+            'anomalyRate': anomaly_rate,
+            'averageTemperature': round(avg_temperature, 1),
+            'averageHumidity': round(avg_humidity, 1),
+            'recentData': recent_formatted,
+            'timeSeriesData': time_series_data,
+            'productDistribution': product_distribution,
+            'organizationMetrics': organization_metrics,
+            'alerts': alerts,
+            'lastUpdated': current_time.isoformat()
+        })
+        
+    except Exception as e:
+        logger.error(f"Error getting real-time analytics: {e}")
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/analytics/predictions', methods=['GET'])
+def get_predictive_analytics():
+    """Get predictive analytics based on historical data"""
+    try:
+        auth_header = request.headers.get('Authorization')
+        if not auth_header or not auth_header.startswith('Bearer '):
+            return jsonify({'error': 'No token provided'}), 401
+        
+        token = auth_header.split(' ')[1]
+        session = active_sessions.get(token)
+        
+        if not session:
+            return jsonify({'error': 'Invalid or expired token'}), 401
+        
+        # Simple predictive analytics based on trends
+        predictions = []
+        
+        if len(supply_chain_data) > 5:
+            # Analyze anomaly trend
+            recent_items = sorted(supply_chain_data, key=lambda x: x.get('timestamp', ''))[-10:]
+            recent_anomalies = [item for item in recent_items if item.get('is_anomaly', False)]
+            
+            anomaly_trend = len(recent_anomalies) / len(recent_items) if recent_items else 0
+            
+            if anomaly_trend > 0.3:  # More than 30% of recent items are anomalies
+                predictions.append({
+                    'type': 'anomaly_increase',
+                    'message': 'Anomaly rate trending upward',
+                    'confidence': min(0.9, anomaly_trend * 2),
+                    'recommendation': 'Increase monitoring frequency and review environmental controls'
+                })
+            
+            # Temperature trend analysis
+            temp_data = [float(item.get('data', {}).get('temperature', 0)) for item in recent_items if item.get('data', {}).get('temperature')]
+            if len(temp_data) > 3:
+                temp_trend = (temp_data[-1] - temp_data[0]) / len(temp_data)
+                if abs(temp_trend) > 2:  # Significant temperature change
+                    predictions.append({
+                        'type': 'temperature_trend',
+                        'message': f'Temperature trending {"upward" if temp_trend > 0 else "downward"}',
+                        'confidence': min(0.8, abs(temp_trend) / 10),
+                        'recommendation': 'Monitor environmental control systems'
+                    })
+        
+        return jsonify({
+            'predictions': predictions,
+            'generated_at': datetime.now().isoformat(),
+            'data_points_analyzed': len(supply_chain_data)
+        })
+        
+    except Exception as e:
+        logger.error(f"Error getting predictive analytics: {e}")
+        return jsonify({'error': str(e)}), 500
+
 @app.route('/api/blockchain/submit-data', methods=['POST', 'OPTIONS'])
 def submit_blockchain_data():
     """Submit data to blockchain network"""
@@ -625,6 +831,13 @@ def not_found(error):
             '/api/auth/login',
             '/api/auth/verify', 
             '/api/supply-chain/query',
+            '/api/supply-chain/submit',
+            '/api/supply-chain/retrieve/<data_id>',
+            '/api/supply-chain/verify/<data_id>',
+            '/api/analytics/comprehensive',
+            '/api/analytics/anomalies',
+            '/api/analytics/predictions',
+            '/api/analytics/alerts',
             '/api/blockchain/submit-data',
             '/health'
         ]
@@ -635,6 +848,169 @@ def internal_error(error):
     """Handle 500 errors"""
     app.logger.error(f"Internal server error: {str(error)}")
     return jsonify({'error': 'Internal server error'}), 500
+
+@app.route('/api/analytics/comprehensive', methods=['GET'])
+def get_comprehensive_analytics():
+    """Get comprehensive analytics including anomalies, predictions, and risk assessment"""
+    try:
+        # Import here to avoid circular dependencies
+        import sys
+        import os
+        sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+        
+        import integrated_analytics as ia
+        
+        # Create integrated analytics system
+        analytics_system = ia.IntegratedAnalyticsSystem()
+        
+        # Run comprehensive analysis
+        results = analytics_system.run_comprehensive_analysis()
+        
+        # Add system status
+        results['system_status'] = analytics_system.get_system_status()
+        
+        logger.info("Comprehensive analytics completed successfully")
+        return jsonify({
+            'success': True,
+            'analytics': results,
+            'timestamp': datetime.now().isoformat()
+        })
+        
+    except Exception as e:
+        logger.error(f"Error running comprehensive analytics: {e}")
+        return jsonify({
+            'success': False,
+            'error': str(e),
+            'timestamp': datetime.now().isoformat()
+        }), 500
+
+@app.route('/api/analytics/anomalies', methods=['GET'])
+def get_anomaly_detection():
+    """Get anomaly detection results only"""
+    try:
+        import sys
+        import os
+        sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+        
+        import advanced_anomaly_detection as aad
+        
+        # Get supply chain data
+        data = supply_chain_data.copy()
+        
+        if not data:
+            return jsonify({
+                'success': True,
+                'anomalies': [],
+                'message': 'No data available for analysis'
+            })
+        
+        # Create anomaly detector and analyze
+        detector = aad.AdvancedAnomalyDetector()
+        results = detector.detect_anomalies(data)
+        
+        logger.info(f"Anomaly detection completed: {results.get('unique_anomalies_count', 0)} anomalies found")
+        return jsonify({
+            'success': True,
+            'anomalies': results,
+            'timestamp': datetime.now().isoformat()
+        })
+        
+    except Exception as e:
+        logger.error(f"Error in anomaly detection: {e}")
+        return jsonify({
+            'success': False,
+            'error': str(e),
+            'timestamp': datetime.now().isoformat()
+        }), 500
+
+@app.route('/api/analytics/ml-predictions', methods=['GET'])
+def get_predictive_analytics_ml():
+    """Get predictive analytics results only"""
+    try:
+        import sys
+        import os
+        sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+        
+        import predictive_analytics as pa
+        
+        # Create predictive analytics system
+        predictor = pa.PredictiveAnalytics()
+        
+        # Fetch and analyze data
+        df = predictor.fetch_historical_data()
+        
+        if len(df) < 10:
+            return jsonify({
+                'success': True,
+                'predictions': {},
+                'message': 'Insufficient data for predictions',
+                'data_points': len(df)
+            })
+        
+        # Engineer features and make predictions
+        df_features = predictor.engineer_features(df)
+        
+        # Train models if not trained
+        if not predictor.is_trained:
+            predictor.train_models(df_features)
+        
+        # Generate predictions
+        predictions = predictor.predict_future_values(df_features, days_ahead=7)
+        demand_forecast = predictor.generate_demand_forecast(df_features)
+        
+        logger.info(f"Predictive analytics completed: {len(predictions)} targets predicted")
+        return jsonify({
+            'success': True,
+            'predictions': predictions,
+            'demand_forecast': demand_forecast,
+            'data_points': len(df),
+            'features_engineered': df_features.shape[1],
+            'timestamp': datetime.now().isoformat()
+        })
+        
+    except Exception as e:
+        logger.error(f"Error in predictive analytics: {e}")
+        return jsonify({
+            'success': False,
+            'error': str(e),
+            'timestamp': datetime.now().isoformat()
+        }), 500
+
+@app.route('/api/analytics/alerts', methods=['GET'])
+def get_recent_alerts():
+    """Get recent alerts from the alerting system"""
+    try:
+        import sys
+        import os
+        sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+        
+        import real_time_alerting as rta
+        
+        # Create alerting system
+        alerting_system = rta.AlertingSystem()
+        
+        # Get query parameters
+        limit = int(request.args.get('limit', 20))
+        severity_filter = request.args.get('severity')
+        
+        # Get recent alerts
+        alerts = alerting_system.get_recent_alerts(limit=limit, severity_filter=severity_filter)
+        
+        logger.info(f"Retrieved {len(alerts)} recent alerts")
+        return jsonify({
+            'success': True,
+            'alerts': alerts,
+            'count': len(alerts),
+            'timestamp': datetime.now().isoformat()
+        })
+        
+    except Exception as e:
+        logger.error(f"Error retrieving alerts: {e}")
+        return jsonify({
+            'success': False,
+            'error': str(e),
+            'timestamp': datetime.now().isoformat()
+        }), 500
 
 if __name__ == '__main__':
     logger.info("Starting CryptaNet Backend Service on port 5004...")

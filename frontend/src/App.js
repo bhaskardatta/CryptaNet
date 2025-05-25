@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
-import { ThemeProvider, createTheme } from '@material-ui/core/styles';
-import CssBaseline from '@material-ui/core/CssBaseline';
+import { ThemeProvider, createTheme } from '@mui/material/styles';
+import CssBaseline from '@mui/material/CssBaseline';
 import { useDispatch, useSelector } from 'react-redux';
 
 // Layout components
@@ -14,6 +14,8 @@ import SupplyChainData from './pages/SupplyChainData';
 import AnomalyDetection from './pages/AnomalyDetection';
 import Explainability from './pages/Explainability';
 import Settings from './pages/Settings';
+import RealTimeAnalytics from './components/analytics/RealTimeAnalytics';
+import SystemHealthDashboard from './components/monitoring/SystemHealthDashboard';
 
 // Auth
 import { checkAuth } from './store/slices/authSlice';
@@ -74,6 +76,8 @@ function App() {
           <Route index element={<Dashboard />} />
           <Route path="supply-chain-data" element={<SupplyChainData />} />
           <Route path="anomaly-detection" element={<AnomalyDetection />} />
+          <Route path="analytics" element={<RealTimeAnalytics />} />
+          <Route path="system-health" element={<SystemHealthDashboard />} />
           <Route path="explainability" element={<Explainability />} />
           <Route path="settings" element={<Settings />} />
         </Route>

@@ -1,13 +1,105 @@
+# Dependencies
 node_modules/
 venv/
+env/
+
+# Environment variables
 .env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# OS generated files
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Logs
 *.log
+logs/
+log/
+
+# Python cache and compiled files
 *.pyc
+*.py[cod]
+*$py.class
+*.so
 __pycache__/
+*.egg-info/
 build/
 dist/
-*.egg-info/
-.coverage
+develop-eggs/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+.installed.cfg
+*.egg
+MANIFEST
+
+# IDE files
 .idea/
 .vscode/
+*.swp
+*.swo
+*~
+
+# Analysis results (generated files)
+analysis_results_*.json
+performance_report_*.json
+
+# Database files (temporary/development)
+*.db
+*.sqlite
+*.sqlite3
+
+# Testing and coverage
+.coverage
+.coverage.*
+coverage.xml
+*.cover
+.hypothesis/
+.pytest_cache/
+htmlcov/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Docker
+.dockerignore
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.temp
+*.bak
+
+# Model files (if large)
+*.pkl
+*.pickle
+*.joblib
+*.h5
+*.hdf5
+
+# Node.js specific
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.npm
+.eslintcache
+
+# Status and report files
+*STATUS*.md
+*REPORT*.md
+*COMPLETE*.md

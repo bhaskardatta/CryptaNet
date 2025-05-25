@@ -1,0 +1,103 @@
+{
+  "dashboard": {
+    "id": null,
+    "title": "CryptaNet System Dashboard",
+    "tags": ["cryptanet", "supply-chain", "monitoring"],
+    "style": "dark",
+    "timezone": "",
+    "panels": [
+      {
+        "id": 1,
+        "title": "API Response Time",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "http_request_duration_seconds{job=\"cryptanet-backend\"}",
+            "legendFormat": "Backend API"
+          }
+        ],
+        "gridPos": {
+          "h": 9,
+          "w": 12,
+          "x": 0,
+          "y": 0
+        }
+      },
+      {
+        "id": 2,
+        "title": "Request Rate",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(http_requests_total{job=\"cryptanet-backend\"}[5m])",
+            "legendFormat": "Requests/sec"
+          }
+        ],
+        "gridPos": {
+          "h": 9,
+          "w": 12,
+          "x": 12,
+          "y": 0
+        }
+      },
+      {
+        "id": 3,
+        "title": "System Memory Usage",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "process_resident_memory_bytes{job=~\"cryptanet-.*\"}",
+            "legendFormat": "{{job}}"
+          }
+        ],
+        "gridPos": {
+          "h": 9,
+          "w": 12,
+          "x": 0,
+          "y": 9
+        }
+      },
+      {
+        "id": 4,
+        "title": "Anomaly Detection Rate",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "anomalies_detected_total{job=\"cryptanet-anomaly\"}",
+            "legendFormat": "Total Anomalies"
+          }
+        ],
+        "gridPos": {
+          "h": 9,
+          "w": 12,
+          "x": 12,
+          "y": 9
+        }
+      },
+      {
+        "id": 5,
+        "title": "Database Operations",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "database_operations_total{job=\"cryptanet-backend\"}",
+            "legendFormat": "DB Operations"
+          }
+        ],
+        "gridPos": {
+          "h": 9,
+          "w": 24,
+          "x": 0,
+          "y": 18
+        }
+      }
+    ],
+    "time": {
+      "from": "now-1h",
+      "to": "now"
+    },
+    "refresh": "10s",
+    "schemaVersion": 16,
+    "version": 0
+  }
+}

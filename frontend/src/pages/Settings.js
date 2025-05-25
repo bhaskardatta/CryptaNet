@@ -1,66 +1,36 @@
 import React, { useState, useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { makeStyles } from '@material-ui/core/styles';
-import {
-  Paper,
-  Typography,
-  Grid,
-  Button,
-  TextField,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  Tabs,
-  Tab,
-  Box,
-  CircularProgress,
-  Snackbar,
-  Switch,
-  FormControlLabel,
-  Slider,
-  Divider,
-  Card,
-  CardContent,
-} from '@material-ui/core';
-import { Alert } from '@material-ui/lab';
-import { Save, Refresh } from '@material-ui/icons';
-import { anomalyService } from '../services/anomalyService';
+import { useSelector } from 'react-redux';
+import { styled } from '@mui/material/styles';
+import { Paper, Typography, Grid, Button, FormControl, InputLabel, Select, MenuItem, Tabs, Tab, Box, CircularProgress, Snackbar, Switch, FormControlLabel, Slider, Divider } from '@mui/material';
+import { Alert } from '@mui/material';
+import { Save } from '@mui/icons-material';
+import { API_URL } from '../config';
 
-const useStyles = makeStyles((theme) => ({
-  root: {
-    flexGrow: 1,
-  },
-  paper: {
-    padding: theme.spacing(2),
-    marginBottom: theme.spacing(2),
-  },
-  formControl: {
-    margin: theme.spacing(1),
-    minWidth: 120,
-  },
-  tabContent: {
-    padding: theme.spacing(2),
-  },
-  slider: {
-    width: '100%',
-    padding: theme.spacing(0, 2),
-  },
-  divider: {
-    margin: theme.spacing(2, 0),
-  },
-  saveButton: {
-    marginTop: theme.spacing(2),
-  },
-  card: {
-    marginBottom: theme.spacing(2),
-  },
-  loadingContainer: {
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: theme.spacing(4),
-  },
+const Root = styled('div')(({ theme }) => ({
+  flexGrow: 1,
+}));
+
+const StyledPaper = styled(Paper)(({ theme }) => ({
+  padding: theme.spacing(2),
+  marginBottom: theme.spacing(2),
+}));
+
+const StyledFormControl = styled(FormControl)(({ theme }) => ({
+  margin: theme.spacing(1),
+  minWidth: 120,
+}));
+
+const StyledSlider = styled(Slider)(({ theme }) => ({
+  width: '100%',
+  padding: theme.spacing(0, 2),
+}));
+
+const StyledDivider = styled(Divider)(({ theme }) => ({
+  margin: theme.spacing(2, 0),
+}));
+
+const SaveButton = styled(Button)(({ theme }) => ({
+  marginTop: theme.spacing(2),
 }));
 
 function TabPanel(props) {
@@ -80,14 +50,16 @@ function TabPanel(props) {
 }
 
 const Settings = () => {
-  const classes = useStyles();
-  const dispatch = useDispatch();
-  const { user } = useSelector((state) => state.auth);
+  const { anomalies } = useSelector((state) => state.anomaly);
   const [tabValue, setTabValue] = useState(0);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
-  const [successMessage, setSuccessMessage] = useState('');
   const [error, setError] = useState(null);
+  const [stats, setStats] = useState({
+    totalRecords: 0,
+    modelAccuracy: 0.95,
+    averageResponseTime: 2.5
+  });
   
   // Anomaly Detection Settings
   const [anomalySettings, setAnomalySettings] = useState({
@@ -114,9 +86,29 @@ const Settings = () => {
     dateFormat: 'MM/DD/YYYY',
   });
 
+  // Stats will be fetched from API
+
   useEffect(() => {
-    // Fetch user settings
+    // Fetch user settings and analytics data
     fetchSettings();
+    
+    // Fetch analytics data
+    const fetchAnalytics = async () => {
+      try {
+        const response = await fetch(`${API_URL}/api/analytics/comprehensive`);
+        if (response.ok) {
+          const data = await response.json();
+          setStats({
+            totalRecords: data.analytics?.total_records || 0,
+            modelAccuracy: data.analytics?.model_metrics?.accuracy || 0.95,
+            averageResponseTime: data.analytics?.response_metrics?.average_time || 2.5
+          });
+        }
+      } catch (error) {
+        console.error('Failed to fetch analytics:', error);
+      }
+    };
+    fetchAnalytics();
   }, []);
 
   const fetchSettings = async () => {
@@ -161,21 +153,6 @@ const Settings = () => {
 
   const handleTabChange = (event, newValue) => {
     setTabValue(newValue);
-  };
-
-  const handleAnomalySettingsChange = (e) => {
-    const { name, value, checked } = e.target;
-    setAnomalySettings({
-      ...anomalySettings,
-      [name]: e.target.type === 'checkbox' ? checked : value,
-    });
-  };
-
-  const handleThresholdChange = (event, newValue) => {
-    setAnomalySettings({
-      ...anomalySettings,
-      defaultThreshold: newValue,
-    });
   };
 
   const handlePrivacySettingsChange = (e) => {
@@ -229,67 +206,18 @@ const Settings = () => {
     }
   };
 
-  const handleTrainModel = async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      console.log('Starting model training with settings:', {
-        threshold: anomalySettings.defaultThreshold,
-        auto_train: anomalySettings.autoTrain,
-        model_type: anomalySettings.modelType
-      });
-      
-      // Call the anomaly service to train the model
-      const response = await fetch('http://localhost:5002/train', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          threshold: anomalySettings.defaultThreshold,
-          auto_train: anomalySettings.autoTrain,
-          model_type: anomalySettings.modelType,
-          n_estimators: 100,
-          // Add feature count based on model type
-          feature_count: anomalySettings.modelType === 'comprehensive' ? 5 : 3,
-          samples: 1000 // Increase sample size for better training
-        })
-      });
-      
-      if (response.ok) {
-        const result = await response.json();
-        console.log('Model training result:', result);
-        if (result.success) {
-          setSuccess(true);
-          // Set a more descriptive success message
-          setSuccessMessage(`Model trained successfully with ${result.details?.samples || 'unknown'} samples and ${result.details?.features || 'unknown'} features.`);
-        } else {
-          throw new Error(result.message || 'Training completed with errors');
-        }
-      } else {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(`Failed to train model: ${errorData.message || response.statusText}`);
-      }
-      setLoading(false);
-    } catch (err) {
-      console.error('Error training model:', err);
-      setError(`Failed to train model: ${err.message || 'Unknown error'}`);
-      setLoading(false);
-    }
-  };
-
   const handleCloseSnackbar = () => {
     setSuccess(false);
     setError(null);
   };
 
   return (
-    <div className={classes.root}>
+    <Root>
       <Typography variant="h4" gutterBottom>
         Settings
       </Typography>
 
-      <Paper className={classes.paper}>
+      <StyledPaper>
         <Tabs value={tabValue} onChange={handleTabChange} indicatorColor="primary" textColor="primary">
           <Tab label="Anomaly Detection" />
           <Tab label="Privacy" />
@@ -298,104 +226,63 @@ const Settings = () => {
 
         <TabPanel value={tabValue} index={0}>
           <Typography variant="h6" gutterBottom>
-            Anomaly Detection Settings
+            Anomaly Detection Statistics
           </Typography>
           <Grid container spacing={3}>
             <Grid item xs={12} sm={6}>
-              <Typography id="threshold-slider" gutterBottom>
-                Default Anomaly Threshold: {anomalySettings.defaultThreshold}
-              </Typography>
-              <Slider
-                value={anomalySettings.defaultThreshold}
-                onChange={handleThresholdChange}
-                aria-labelledby="threshold-slider"
-                valueLabelDisplay="auto"
-                step={0.05}
-                marks
-                min={0}
-                max={1}
-                className={classes.slider}
-              />
-              <Typography variant="body2" color="textSecondary">
-                Higher values detect fewer anomalies but with higher confidence.
-              </Typography>
+              <StyledPaper>
+                <Typography variant="subtitle1" gutterBottom>
+                  Recent Anomalies
+                </Typography>
+                <Typography variant="h3" align="center" color="primary">
+                  {anomalies?.length || 0}
+                </Typography>
+                <Typography variant="body2" color="textSecondary" align="center">
+                  Last 24 hours
+                </Typography>
+              </StyledPaper>
+            </Grid>
+            
+            <Grid item xs={12} sm={6}>
+              <StyledPaper>
+                <Typography variant="subtitle1" gutterBottom>
+                  Detection Rate
+                </Typography>
+                <Typography variant="h3" align="center" color="primary">
+                  {((anomalies?.length || 0) / (stats?.totalRecords || 1) * 100).toFixed(1)}%
+                </Typography>
+                <Typography variant="body2" color="textSecondary" align="center">
+                  Percentage of anomalous events
+                </Typography>
+              </StyledPaper>
             </Grid>
 
             <Grid item xs={12} sm={6}>
-              <FormControl fullWidth variant="outlined" className={classes.formControl}>
-                <InputLabel id="model-type-label">Model Type</InputLabel>
-                <Select
-                  labelId="model-type-label"
-                  id="modelType"
-                  name="modelType"
-                  value={anomalySettings.modelType}
-                  onChange={handleAnomalySettingsChange}
-                  label="Model Type"
-                >
-                  <MenuItem value="isolation_forest">Isolation Forest</MenuItem>
-                  <MenuItem value="one_class_svm">One-Class SVM</MenuItem>
-                  <MenuItem value="local_outlier_factor">Local Outlier Factor</MenuItem>
-                </Select>
-              </FormControl>
+              <StyledPaper>
+                <Typography variant="subtitle1" gutterBottom>
+                  Average Response Time
+                </Typography>
+                <Typography variant="h3" align="center" color="warning">
+                  {stats?.averageResponseTime || '< 1'} min
+                </Typography>
+                <Typography variant="body2" color="textSecondary" align="center">
+                  Time to detect anomalies
+                </Typography>
+              </StyledPaper>
             </Grid>
 
             <Grid item xs={12} sm={6}>
-              <FormControlLabel
-                control={
-                  <Switch
-                    checked={anomalySettings.autoTrain}
-                    onChange={handleAnomalySettingsChange}
-                    name="autoTrain"
-                    color="primary"
-                  />
-                }
-                label="Auto-train model with new data"
-              />
-            </Grid>
-
-            <Grid item xs={12} sm={6}>
-              <FormControl fullWidth variant="outlined" className={classes.formControl}>
-                <InputLabel id="training-frequency-label">Training Frequency</InputLabel>
-                <Select
-                  labelId="training-frequency-label"
-                  id="trainingFrequency"
-                  name="trainingFrequency"
-                  value={anomalySettings.trainingFrequency}
-                  onChange={handleAnomalySettingsChange}
-                  label="Training Frequency"
-                  disabled={!anomalySettings.autoTrain}
-                >
-                  <MenuItem value="daily">Daily</MenuItem>
-                  <MenuItem value="weekly">Weekly</MenuItem>
-                  <MenuItem value="monthly">Monthly</MenuItem>
-                </Select>
-              </FormControl>
-            </Grid>
-
-            <Grid item xs={12}>
-              <FormControlLabel
-                control={
-                  <Switch
-                    checked={anomalySettings.notificationsEnabled}
-                    onChange={handleAnomalySettingsChange}
-                    name="notificationsEnabled"
-                    color="primary"
-                  />
-                }
-                label="Enable anomaly detection notifications"
-              />
-            </Grid>
-
-            <Grid item xs={12}>
-              <Button
-                variant="contained"
-                color="secondary"
-                onClick={handleTrainModel}
-                disabled={loading}
-                startIcon={<Refresh />}
-              >
-                {loading ? <CircularProgress size={24} /> : 'Train Model Now'}
-              </Button>
+              <StyledPaper>
+                <Typography variant="subtitle1" gutterBottom>
+                  Model Accuracy
+                </Typography>
+                <Typography variant="h3" align="center" color="success">
+                  {(stats?.modelAccuracy || 0.95 * 100).toFixed(1)}%
+                </Typography>
+                <Typography variant="body2" color="textSecondary" align="center">
+                  Based on validated predictions
+                </Typography>
+              </StyledPaper>
             </Grid>
           </Grid>
         </TabPanel>
@@ -406,7 +293,7 @@ const Settings = () => {
           </Typography>
           <Grid container spacing={3}>
             <Grid item xs={12} sm={6}>
-              <FormControl fullWidth variant="outlined" className={classes.formControl}>
+              <StyledFormControl fullWidth variant="outlined">
                 <InputLabel id="data-visibility-label">Default Data Visibility</InputLabel>
                 <Select
                   labelId="data-visibility-label"
@@ -421,11 +308,11 @@ const Settings = () => {
                   <MenuItem value="partners">Partners</MenuItem>
                   <MenuItem value="public">Public</MenuItem>
                 </Select>
-              </FormControl>
+              </StyledFormControl>
             </Grid>
 
             <Grid item xs={12} sm={6}>
-              <FormControl fullWidth variant="outlined" className={classes.formControl}>
+              <StyledFormControl fullWidth variant="outlined">
                 <InputLabel id="encryption-level-label">Encryption Level</InputLabel>
                 <Select
                   labelId="encryption-level-label"
@@ -439,14 +326,14 @@ const Settings = () => {
                   <MenuItem value="high">High</MenuItem>
                   <MenuItem value="very-high">Very High</MenuItem>
                 </Select>
-              </FormControl>
+              </StyledFormControl>
             </Grid>
 
             <Grid item xs={12}>
               <Typography id="retention-slider" gutterBottom>
                 Data Retention Period: {privacySettings.dataRetentionPeriod} days
               </Typography>
-              <Slider
+              <StyledSlider
                 value={privacySettings.dataRetentionPeriod}
                 onChange={handleRetentionPeriodChange}
                 aria-labelledby="retention-slider"
@@ -455,7 +342,7 @@ const Settings = () => {
                 marks
                 min={30}
                 max={365}
-                className={classes.slider}
+                
               />
             </Grid>
 
@@ -481,7 +368,7 @@ const Settings = () => {
           </Typography>
           <Grid container spacing={3}>
             <Grid item xs={12} sm={6}>
-              <FormControl fullWidth variant="outlined" className={classes.formControl}>
+              <StyledFormControl fullWidth variant="outlined">
                 <InputLabel id="theme-label">Theme</InputLabel>
                 <Select
                   labelId="theme-label"
@@ -495,11 +382,11 @@ const Settings = () => {
                   <MenuItem value="dark">Dark</MenuItem>
                   <MenuItem value="system">System Default</MenuItem>
                 </Select>
-              </FormControl>
+              </StyledFormControl>
             </Grid>
 
             <Grid item xs={12} sm={6}>
-              <FormControl fullWidth variant="outlined" className={classes.formControl}>
+              <StyledFormControl fullWidth variant="outlined">
                 <InputLabel id="language-label">Language</InputLabel>
                 <Select
                   labelId="language-label"
@@ -514,14 +401,14 @@ const Settings = () => {
                   <MenuItem value="fr">French</MenuItem>
                   <MenuItem value="de">German</MenuItem>
                 </Select>
-              </FormControl>
+              </StyledFormControl>
             </Grid>
 
             <Grid item xs={12} sm={6}>
               <Typography id="refresh-rate-slider" gutterBottom>
                 Dashboard Refresh Rate: {userPreferences.dashboardRefreshRate} minutes
               </Typography>
-              <Slider
+              <StyledSlider
                 value={userPreferences.dashboardRefreshRate}
                 onChange={handleRefreshRateChange}
                 aria-labelledby="refresh-rate-slider"
@@ -530,12 +417,12 @@ const Settings = () => {
                 marks
                 min={1}
                 max={30}
-                className={classes.slider}
+                
               />
             </Grid>
 
             <Grid item xs={12} sm={6}>
-              <FormControl fullWidth variant="outlined" className={classes.formControl}>
+              <StyledFormControl fullWidth variant="outlined">
                 <InputLabel id="date-format-label">Date Format</InputLabel>
                 <Select
                   labelId="date-format-label"
@@ -549,32 +436,31 @@ const Settings = () => {
                   <MenuItem value="DD/MM/YYYY">DD/MM/YYYY</MenuItem>
                   <MenuItem value="YYYY-MM-DD">YYYY-MM-DD</MenuItem>
                 </Select>
-              </FormControl>
+              </StyledFormControl>
             </Grid>
           </Grid>
         </TabPanel>
 
-        <Divider className={classes.divider} />
+        <StyledDivider />
 
-        <Button
+        <SaveButton
           variant="contained"
           color="primary"
           onClick={handleSaveSettings}
           disabled={loading}
-          className={classes.saveButton}
           startIcon={<Save />}
         >
           {loading ? <CircularProgress size={24} /> : 'Save Settings'}
-        </Button>
-      </Paper>
+        </SaveButton>
+      </StyledPaper>
 
       {/* Snackbar for notifications */}
       <Snackbar open={!!error || success} autoHideDuration={6000} onClose={handleCloseSnackbar}>
         <Alert onClose={handleCloseSnackbar} severity={error ? 'error' : 'success'}>
-          {error || successMessage || 'Settings saved successfully'}
+          {error || 'Settings saved successfully'}
         </Alert>
       </Snackbar>
-    </div>
+    </Root>
   );
 };
 

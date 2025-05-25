@@ -48,7 +48,9 @@ export const API_CONFIG = {
       STATUS: '/api/anomalies/status'
     },
     ANALYTICS: {
-      SUMMARY: '/api/analytics/summary'
+      SUMMARY: '/api/analytics/summary',
+      COMPREHENSIVE: '/api/analytics/comprehensive',
+      REALTIME: '/api/analytics/real-time'
     },
     MODEL: {
       METRICS: '/api/anomaly-detection/metrics',
@@ -63,3 +65,10 @@ export const DEFAULT_CREDENTIALS = {
   user1: { username: 'user1', password: 'password123' },
   org2admin: { username: 'org2admin', password: 'org2pass' }
 };
+
+// API Configuration
+// export const API_URL = 'http://localhost:5004';
+
+// Other global configuration values
+export const APP_VERSION = '3.0.0';
+export const DEFAULT_ORGANIZATION = 'Org1MSP';

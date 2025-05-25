@@ -278,9 +278,13 @@ After starting all services:
 - **Automatic anomaly injection** for testing
 
 ### **Blockchain Layer (`blockchain/`)**
-- **Hyperledger Fabric** network configuration
+- **Hyperledger Fabric 2.x** network configuration
 - **Smart contracts** for supply chain verification
 - **Immutable record keeping**
+- **Channel participation API** for advanced channel management
+- **Diagnostic tools** for network troubleshooting
+
+> The blockchain network has been updated to be compatible with Hyperledger Fabric 2.x with improved DNS resolution between containers and enhanced network configuration.
 
 ## 🚀 **Production Deployment**
 
@@ -458,6 +462,38 @@ curl http://localhost:5004/api/health
 **High CPU Usage:**
 - Use the simulator dashboard to select a longer interval (10 or 30 seconds)
 - Monitor with: `./system_health_monitor.sh`
+
+### **Blockchain Network Issues**
+
+**Channel Creation Issues:**
+```bash
+# Run blockchain diagnostic script
+cd blockchain/network
+./diagnostic.sh
+
+# Manual channel creation (if needed)
+./create_channel_manual.sh
+```
+
+**Container Connectivity Issues:**
+```bash
+# Check container DNS resolution
+docker exec cli ping peer0.org1.example.com
+
+# Check if orderer admin API is accessible
+docker exec cli curl -s http://orderer.example.com:9443/participation/v1/channels
+```
+
+**Reset Blockchain Network:**
+```bash
+cd blockchain/docker
+docker-compose down -v
+cd ../network
+./generate.sh
+cd ../docker
+./prepare_environment.sh clean
+docker-compose up -d
+```
 
 ## 🤝 **Contributing**
 

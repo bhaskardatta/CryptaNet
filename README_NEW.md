@@ -31,44 +31,6 @@
                         (Generates test data)
 ```
 
-## 🔄 **Recent Updates & Fixes**
-
-### **Latest Improvements (May 25, 2025)**
-
-**🐛 Critical Bug Fixes:**
-- ✅ **Dashboard Zero Values Issue**: Fixed anomaly detection field references in `integrated_analytics.py`
-- ✅ **Data Flow Problem**: Corrected `anomalies_detected` → `anomalies` field mapping
-- ✅ **Analytics Display**: Dashboard now shows live data (259+ records, 219+ anomalies)
-
-**🧹 Project Cleanup:**
-- ✅ **Removed 20+ unnecessary files**: Python cache, duplicate scripts, old documentation
-- ✅ **Enhanced .gitignore**: Added comprehensive patterns for better version control
-- ✅ **Streamlined structure**: Organized essential files and removed clutter
-
-**📦 System Improvements:**
-- ✅ **Docker Integration**: Complete containerization setup with `docker-compose.yml`
-- ✅ **Enhanced Documentation**: Comprehensive setup guide for new systems
-- ✅ **Health Monitoring**: Improved system health checks and monitoring scripts
-
-**🔧 Technical Details:**
-- Fixed 5 field reference errors in analytics engine
-- Updated comprehensive analytics endpoint data structure
-- Improved real-time data flow between simulator and dashboard
-- Added robust error handling and logging
-
-### **System Health Status**
-```bash
-# Quick health check
-./simple_health_check.sh
-
-# Current metrics (live)
-curl -s http://localhost:5004/api/analytics/comprehensive | python3 -c "
-import json, sys; data=json.load(sys.stdin); 
-print(f'Records: {data[\"analytics\"][\"total_records\"]}')
-print(f'Anomalies: {len(data[\"analytics\"][\"anomaly_detection\"][\"anomalies\"])}')
-"
-```
-
 ## 🎯 **Quick Start Guide**
 
 ### **Prerequisites**
@@ -81,7 +43,7 @@ print(f'Anomalies: {len(data[\"analytics\"][\"anomaly_detection\"][\"anomalies\"
 
 ```bash
 # Clone and setup the entire project
-git clone https://github.com/your-username/CryptaNet.git
+git clone <your-repository-url>
 cd CryptaNet
 
 # Start all services with one script
@@ -89,120 +51,13 @@ chmod +x start_enhanced_system.sh
 ./start_enhanced_system.sh
 ```
 
-> **Note**: Replace `your-username` with your actual GitHub username in the clone URL.
-
-## 🆕 **Complete New System Setup**
-
-### **Step 1: System Prerequisites**
-
-**macOS:**
-```bash
-# Install Homebrew (if not installed)
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-
-# Install required tools
-brew install python@3.11 node@18 git
-```
-
-**Ubuntu/Debian:**
-```bash
-# Update system
-sudo apt update && sudo apt upgrade -y
-
-# Install prerequisites
-sudo apt install -y python3.11 python3-pip nodejs npm git curl
-```
-
-**Verify Installation:**
-```bash
-python3 --version  # Should be 3.8+
-node --version     # Should be 16+
-npm --version      # Should be 8+
-git --version      # Any recent version
-```
-
-### **Step 2: Clone and Setup Project**
-
-```bash
-# Clone the repository
-git clone https://github.com/your-username/CryptaNet.git
-cd CryptaNet
-
-# Make scripts executable
-chmod +x start_enhanced_system.sh
-chmod +x simple_health_check.sh
-chmod +x system_health_monitor.sh
-```
-
-### **Step 3: Install Dependencies**
-
-```bash
-# Backend Python dependencies
-cd backend
-pip3 install -r requirements.txt
-cd ..
-
-# Frontend Node.js dependencies
-cd frontend
-npm install
-cd ..
-
-# Anomaly detection dependencies
-cd anomaly_detection
-pip3 install -r requirements.txt
-cd ..
-
-# Main simulator dependencies
-pip3 install -r simulator_requirements.txt
-```
-
-### **Step 4: Start the System**
-
-```bash
-# Option A: Use the automated startup script (Recommended)
-./start_enhanced_system.sh
-
-# Option B: Manual startup (for debugging)
-# Terminal 1: Backend
-cd backend && python3 simple_backend.py
-
-# Terminal 2: Frontend (in new terminal)
-cd frontend && npm start
-
-# Terminal 3: Data Simulator Dashboard (in new terminal)
-python3 data_simulator_dashboard.py
-
-# Terminal 4: Analytics (in new terminal)
-python3 -c "
-import integrated_analytics as ia
-system = ia.IntegratedAnalyticsSystem()
-system.start_continuous_monitoring(interval_minutes=5)
-"
-```
-
-### **Step 5: Verify Installation**
-
-```bash
-# Check system health
-./simple_health_check.sh
-
-# Test API endpoints
-curl http://localhost:5004/api/health
-curl http://localhost:5004/api/analytics/comprehensive | python3 -m json.tool
-
-# Access the dashboard
-open http://localhost:3000  # macOS
-# or visit http://localhost:3000 in your browser
-```
-
 ### **📦 Manual Setup (Step by Step)**
 
 **1. Setup Backend Services**
 ```bash
 # Install Python dependencies
-cd backend
-pip install -r requirements.txt
-cd ..
+pip install -r backend/requirements.txt
+pip install flask flask-cors requests numpy pandas scikit-learn
 
 # Start the main backend API
 cd backend
@@ -245,12 +100,9 @@ After starting all services:
 **✅ System is fully operational with:**
 - **Backend**: Running on port 5004 ✅
 - **Frontend**: Running on port 3000 ✅  
-- **Data Flow**: 259+ total records processed ✅
-- **Anomaly Detection**: 219+ anomalies detected ✅
+- **Data Flow**: ~161 total records processed ✅
+- **Anomaly Detection**: ~139 anomalies detected ✅
 - **Real-time Updates**: 30-second refresh cycle ✅
-- **Dashboard Fix**: Anomaly detection display issue resolved ✅
-
-> **Last Updated**: May 25, 2025 - Dashboard now correctly displays live analytics data instead of showing 0 values.
 
 ## 🔧 **Key Components**
 
@@ -363,101 +215,32 @@ CryptaNet/
 
 ## 🔧 **Troubleshooting**
 
-### **New System Setup Issues**
-
-**Python Module Not Found:**
-```bash
-# If you get "ModuleNotFoundError"
-pip3 install --upgrade pip
-pip3 install flask flask-cors requests numpy pandas scikit-learn joblib
-
-# For macOS with multiple Python versions
-python3.11 -m pip install [package-name]
-```
-
-**Node.js Version Issues:**
-```bash
-# Install Node Version Manager (nvm)
-curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
-source ~/.bashrc  # or ~/.zshrc for zsh
-
-# Install and use Node 18
-nvm install 18
-nvm use 18
-```
-
-**Permission Errors:**
-```bash
-# Make scripts executable
-chmod +x *.sh
-
-# Fix npm permissions (if needed)
-sudo chown -R $(whoami) ~/.npm
-```
-
-### **Runtime Issues**
+### **Common Issues**
 
 **Port Already in Use:**
 ```bash
 # Kill processes on specific ports
 sudo lsof -ti:3000 | xargs kill -9  # Frontend
 sudo lsof -ti:5004 | xargs kill -9  # Backend
-sudo lsof -ti:8001 | xargs kill -9  # Analytics
-```
-
-**Services Not Starting:**
-```bash
-# Check if Python/Node are properly installed
-which python3
-which node
-which npm
-
-# Restart all services
-./start_enhanced_system.sh
-```
-
-**Dashboard Shows Zero Values:**
-```bash
-# This issue has been fixed! If you still see it:
-# 1. Restart the data simulator dashboard
-python3 data_simulator_dashboard.py
-
-# 2. Check backend health
-curl http://localhost:5004/api/analytics/comprehensive
-
-# 3. Refresh your browser
 ```
 
 **Missing Dependencies:**
 ```bash
-# Python dependencies (using requirements files)
-cd backend && pip3 install -r requirements.txt && cd ..
-cd anomaly_detection && pip3 install -r requirements.txt && cd ..
-pip3 install -r simulator_requirements.txt
+# Python dependencies
+pip install flask flask-cors requests numpy pandas scikit-learn
 
 # Node.js dependencies
-cd frontend && npm install && cd ..
+cd frontend && npm install
 ```
 
 **Data Not Showing:**
 ```bash
-# Restart data simulator dashboard
-python3 data_simulator_dashboard.py
+# Restart data simulator
+python data_simulator_dashboard.py --interval 2 --verbose
 
 # Check backend status
 curl http://localhost:5004/api/health
 ```
-
-### **Performance Issues**
-
-**Slow Loading:**
-- Ensure you have at least 4GB RAM available
-- Close unnecessary applications
-- Check system resource usage with `top` or Activity Monitor
-
-**High CPU Usage:**
-- Use the simulator dashboard to select a longer interval (10 or 30 seconds)
-- Monitor with: `./system_health_monitor.sh`
 
 ## 🤝 **Contributing**
 

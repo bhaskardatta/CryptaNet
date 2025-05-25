@@ -84,9 +84,9 @@ start_service "Backend API Server" \
     "5004" \
     "logs/backend.log"
 
-# Start Enhanced Data Simulator
-start_service "Enhanced Data Simulator" \
-    "python3 enhanced_data_simulator.py" \
+# Start Enhanced Data Simulator Dashboard
+start_service "Enhanced Data Simulator Dashboard" \
+    "python3 data_simulator_dashboard.py" \
     "8001" \
     "logs/simulator.log"
 

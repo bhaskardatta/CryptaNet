@@ -6,6 +6,7 @@ export const detectAnomalies = createAsyncThunk(
   'anomaly/detectAnomalies',
   async ({ organizationId, dataType, startTime, endTime, threshold }, { rejectWithValue }) => {
     try {
+      console.log('🔴 Redux: Calling anomalyService.detectAnomalies');
       const response = await anomalyService.detectAnomalies(
         organizationId,
         dataType,
@@ -13,9 +14,20 @@ export const detectAnomalies = createAsyncThunk(
         endTime,
         threshold
       );
-      return response.results;
+      console.log('🔴 Redux: Anomaly response:', response);
+      
+      // Handle both success and error cases from the service
+      if (response.success === false) {
+        console.log('🔴 Redux: Service returned success=false, rejecting:', response.error);
+        return rejectWithValue(response.error || 'Failed to detect anomalies');
+      }
+      
+      const results = response.results || response.anomalies || [];
+      console.log('🔴 Redux: Returning results:', results.length, 'anomalies');
+      return results;
     } catch (error) {
-      return rejectWithValue(error.response?.data?.message || 'Failed to detect anomalies');
+      console.error('🔴 Redux: Error in detectAnomalies:', error);
+      return rejectWithValue(error.response?.data?.message || error.message || 'Failed to detect anomalies');
     }
   }
 );

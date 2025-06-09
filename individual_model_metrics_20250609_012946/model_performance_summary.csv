@@ -1,0 +1,6 @@
+Model,Type,Accuracy,Precision,Recall,F1-Score,True Positives,False Positives,True Negatives,False Negatives
+Isolation Forest,Isolation Forest,0.967,0.661,0.678,0.669,339,174,9326,161
+One-Class SVM,One-Class SVM,0.953,0.525,0.564,0.544,282,255,9245,218
+Local Outlier Factor,LOF,0.909,0.179,0.228,0.201,114,522,8978,386
+DBSCAN Clustering,DBSCAN,0.050,0.050,1.000,0.095,500,9500,0,0
+Ensemble Model,Ensemble,0.965,0.684,0.554,0.612,277,128,9372,223

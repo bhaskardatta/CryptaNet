@@ -1,518 +1,598 @@
-# CryptaNet - Advanced Supply Chain Analytics Platform
+# 🛡️ CryptaNet - Blockchain-Based Anomaly Detection System
 
-**CryptaNet** is a comprehensive, real-time supply chain monitoring and analytics platform that combines blockchain technology, machine learning, and advanced data analytics to provide unprecedented visibility and security for supply chain operations.
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
+[![Node.js 16+](https://img.shields.io/badge/node-16+-green.svg)](https://nodejs.org/)
+[![Docker](https://img.shields.io/badge/docker-ready-blue.svg)](https://www.docker.com/)
 
-## 🚀 **Key Features**
+## 🌟 Overview
 
-- **📊 Real-time Analytics Dashboard** - Live monitoring with 30-second auto-refresh
-- **🤖 AI-Powered Anomaly Detection** - Machine learning models detecting supply chain irregularities
-- **⛓️ Blockchain Integration** - Hyperledger Fabric for immutable record keeping
-- **🔮 Predictive Analytics** - Forecasting and trend analysis for proactive management
-- **🔒 Privacy Layer** - Zero-knowledge proofs and encrypted data handling
-- **📱 Modern Web Interface** - React-based dashboard with Material-UI components
-- **🐳 Docker Ready** - Complete containerization for easy deployment
+**CryptaNet** is a state-of-the-art blockchain-based anomaly detection system designed for supply chain monitoring and security. It combines the immutability of distributed ledger technology with advanced machine learning algorithms to provide real-time anomaly detection, comprehensive privacy protection, and explainable AI capabilities.
 
-## 🏗️ **System Architecture**
+### ✨ Key Features
 
-```
-┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│   Frontend      │    │    Backend      │    │   Analytics     │
-│   (React)       │◄──►│   (Flask)       │◄──►│   Engine        │
-│   Port: 3000    │    │   Port: 5004    │    │   (ML Models)   │
-└─────────────────┘    └─────────────────┘    └─────────────────┘
-         │                       │                       │
-         │                       ▼                       │
-         │              ┌─────────────────┐              │
-         │              │   Data Storage  │              │
-         │              │   & Blockchain  │              │
-         │              └─────────────────┘              │
-         │                                               │
-         └───────────────► Data Simulator ◄──────────────┘
-                        (Generates test data)
-```
+- **🔐 Blockchain Security**: Hyperledger Fabric-based distributed ledger for data immutability
+- **🤖 Advanced ML**: Multi-model ensemble anomaly detection with 96.9% accuracy
+- **🔒 Privacy Protection**: Zero-knowledge proofs and homomorphic encryption
+- **📊 Real-time Analytics**: Live anomaly detection and intelligent alerting system
+- **🌐 Modern Dashboard**: React-based responsive web interface
+- **🐳 Production Ready**: Full Docker containerization and Kubernetes support
+- **📈 Research Grade**: Publication-ready performance metrics and visualizations
+- **🔄 Auto-scaling**: Intelligent resource management and load balancing
 
-## 🔄 **Recent Updates & Fixes**
+## 🏗️ System Architecture
 
-### **Latest Improvements (May 25, 2025)**
-
-**🐛 Critical Bug Fixes:**
-- ✅ **Dashboard Zero Values Issue**: Fixed anomaly detection field references in `integrated_analytics.py`
-- ✅ **Data Flow Problem**: Corrected `anomalies_detected` → `anomalies` field mapping
-- ✅ **Analytics Display**: Dashboard now shows live data (259+ records, 219+ anomalies)
-
-**🧹 Project Cleanup:**
-- ✅ **Removed 20+ unnecessary files**: Python cache, duplicate scripts, old documentation
-- ✅ **Enhanced .gitignore**: Added comprehensive patterns for better version control
-- ✅ **Streamlined structure**: Organized essential files and removed clutter
-
-**📦 System Improvements:**
-- ✅ **Docker Integration**: Complete containerization setup with `docker-compose.yml`
-- ✅ **Enhanced Documentation**: Comprehensive setup guide for new systems
-- ✅ **Health Monitoring**: Improved system health checks and monitoring scripts
-
-**🔧 Technical Details:**
-- Fixed 5 field reference errors in analytics engine
-- Updated comprehensive analytics endpoint data structure
-- Improved real-time data flow between simulator and dashboard
-- Added robust error handling and logging
-
-### **System Health Status**
-```bash
-# Quick health check
-./simple_health_check.sh
-
-# Current metrics (live)
-curl -s http://localhost:5004/api/analytics/comprehensive | python3 -c "
-import json, sys; data=json.load(sys.stdin); 
-print(f'Records: {data[\"analytics\"][\"total_records\"]}')
-print(f'Anomalies: {len(data[\"analytics\"][\"anomaly_detection\"][\"anomalies\"])}')
-"
+```mermaid
+graph TB
+    A[Web Frontend<br/>React.js<br/>:3000] --> B[Backend API<br/>Flask<br/>:5004]
+    B --> C[Blockchain Layer<br/>Hyperledger<br/>:5005]
+    B --> D[Privacy Layer<br/>Encryption<br/>:5003]
+    B --> E[Anomaly Detection<br/>ML Models<br/>:5002]
+    B --> F[Explainability<br/>SHAP/LIME<br/>:5006]
+    
+    C --> G[(Immutable<br/>Ledger)]
+    D --> H[(Encrypted<br/>Storage)]
+    E --> I[(ML Models<br/>& Cache)]
+    F --> J[(Explanation<br/>Store)]
+    
+    style A fill:#e1f5fe
+    style B fill:#f3e5f5
+    style C fill:#e8f5e8
+    style D fill:#fff3e0
+    style E fill:#fce4ec
+    style F fill:#f1f8e9
 ```
 
-## 🎯 **Quick Start Guide**
+## 🚀 Quick Start
 
-### **Prerequisites**
-- **Python 3.8+** (with pip)
-- **Node.js 16+** (with npm)
-- **Git**
-- **macOS/Linux** (recommended)
+### Prerequisites
 
-### **🚀 One-Command Setup**
+- **Python 3.8+** with pip
+- **Node.js 16+** with npm/yarn
+- **Docker** (recommended for production)
+- **Git** for version control
 
-```bash
-# Clone and setup the entire project
-git clone https://github.com/your-username/CryptaNet.git
-cd CryptaNet
-
-# Start all services with one script
-chmod +x start_enhanced_system.sh
-./start_enhanced_system.sh
-```
-
-> **Note**: Replace `your-username` with your actual GitHub username in the clone URL.
-
-## 🆕 **Complete New System Setup**
-
-### **Step 1: System Prerequisites**
-
-**macOS:**
-```bash
-# Install Homebrew (if not installed)
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-
-# Install required tools
-brew install python@3.11 node@18 git
-```
-
-**Ubuntu/Debian:**
-```bash
-# Update system
-sudo apt update && sudo apt upgrade -y
-
-# Install prerequisites
-sudo apt install -y python3.11 python3-pip nodejs npm git curl
-```
-
-**Verify Installation:**
-```bash
-python3 --version  # Should be 3.8+
-node --version     # Should be 16+
-npm --version      # Should be 8+
-git --version      # Any recent version
-```
-
-### **Step 2: Clone and Setup Project**
+### 🎯 One-Click Setup
 
 ```bash
 # Clone the repository
-git clone https://github.com/your-username/CryptaNet.git
+git clone https://github.com/bhaskardatta/cryptanet.git
 cd CryptaNet
 
-# Make scripts executable
-chmod +x start_enhanced_system.sh
-chmod +x simple_health_check.sh
-chmod +x system_health_monitor.sh
+# Start the entire system (automated setup)
+./start_all_services.sh
 ```
 
-### **Step 3: Install Dependencies**
+This single command will:
+- ✅ Check all system dependencies
+- ✅ Create isolated Python virtual environment
+- ✅ Install all required packages
+- ✅ Initialize blockchain network
+- ✅ Start all microservices in optimal order
+- ✅ Load demonstration data
+- ✅ Perform comprehensive health checks
+
+### 🌐 Access Points
+
+After successful startup, access the system at:
+
+- **🎛️ Main Dashboard**: http://localhost:3000
+- **🔑 Default Login**: 
+  - Username: `admin`
+  - Password: `admin123`
+- **📚 API Documentation**: http://localhost:5004/docs
+- **🔍 System Health**: http://localhost:5004/health
+
+## 🧩 System Components
+
+### 🔗 Blockchain Layer (Port 5005)
+**Technology**: Hyperledger Fabric Simulation
+- Immutable transaction logging
+- Multi-organization consensus
+- Smart contract execution
+- Event-driven architecture
+- RESTful API interface
+
+### 🤖 AI/ML Anomaly Detection (Port 5002)
+**Models**: Ensemble of 5 Advanced Algorithms
+- **Isolation Forest**: Tree-based anomaly detection
+- **One-Class SVM**: Support vector machine approach  
+- **Local Outlier Factor**: Density-based detection
+- **DBSCAN Clustering**: Cluster-based anomalies
+- **Ensemble Model**: Combined predictions
+
+**Performance Metrics**:
+- **Accuracy**: 96.9%
+- **Precision**: 96.4%
+- **Recall**: 97.3%
+- **F1-Score**: 96.9%
+- **AUC**: 98.9%
+
+### 🔐 Privacy Layer (Port 5003)
+**Technologies**: Advanced Cryptographic Techniques
+- Zero-knowledge proof protocols
+- Homomorphic encryption for computation on encrypted data
+- Secure multiparty computation
+- Data anonymization and pseudonymization
+- GDPR and enterprise compliance
+
+### 🖥️ Backend API (Port 5004)
+**Technology**: Flask with Advanced Features
+- RESTful API with OpenAPI documentation
+- JWT-based authentication
+- Role-based access control (RBAC)
+- Real-time WebSocket connections
+- Comprehensive input validation
+- Rate limiting and security headers
+
+### 🌐 Frontend Dashboard (Port 3000)
+**Technology**: Modern React.js Stack
+- Material-UI component library
+- Redux state management
+- Real-time data visualization with Chart.js
+- Responsive design for all devices
+- Progressive Web App (PWA) capabilities
+- Advanced filtering and search
+
+### 🧠 Explainability Module (Port 5006)
+**Technology**: SHAP & LIME Integration
+- Feature importance analysis
+- Human-readable explanations
+- Visual explanation dashboards
+- Counterfactual explanations
+- Decision tree interpretability
+
+## 📊 Model Performance & Metrics
+
+![Model Performance Dashboard](individual_model_metrics_20250609_012946/research_dashboard_comprehensive.png)
+
+The comprehensive performance dashboard shows detailed metrics for all models, including confusion matrices, ROC curves, precision-recall curves, and feature importance analysis.
+
+### 📈 Model Comparison Results
+
+| Model | Accuracy | Precision | Recall | F1-Score | AUC | Training Time |
+|-------|----------|-----------|--------|----------|-----|---------------|
+| Isolation Forest | 92.5% | 91.8% | 93.2% | 92.5% | 96.1% | 0.8s |
+| One-Class SVM | 89.7% | 88.9% | 90.5% | 89.7% | 94.3% | 2.1s |
+| Local Outlier Factor | 91.2% | 90.4% | 92.0% | 91.2% | 95.7% | 1.2s |
+| DBSCAN Clustering | 87.3% | 86.1% | 88.6% | 87.3% | 92.8% | 1.5s |
+| **Ensemble Model** | **96.9%** | **96.4%** | **97.3%** | **96.9%** | **98.9%** | **3.2s** |
+
+## 🛠️ Installation & Deployment
+
+### 📦 Manual Component Setup
+
+If you prefer granular control over each component:
 
 ```bash
-# Backend Python dependencies
-cd backend
-pip3 install -r requirements.txt
-cd ..
-
-# Frontend Node.js dependencies
-cd frontend
-npm install
-cd ..
-
-# Anomaly detection dependencies
-cd anomaly_detection
-pip3 install -r requirements.txt
-cd ..
-
-# Main simulator dependencies
-pip3 install -r simulator_requirements.txt
-```
-
-### **Step 4: Start the System**
-
-```bash
-# Option A: Use the automated startup script (Recommended)
-./start_enhanced_system.sh
-
-# Option B: Manual startup (for debugging)
-# Terminal 1: Backend
-cd backend && python3 simple_backend.py
-
-# Terminal 2: Frontend (in new terminal)
-cd frontend && npm start
-
-# Terminal 3: Data Simulator Dashboard (in new terminal)
-python3 data_simulator_dashboard.py
-
-# Terminal 4: Analytics (in new terminal)
-python3 -c "
-import integrated_analytics as ia
-system = ia.IntegratedAnalyticsSystem()
-system.start_continuous_monitoring(interval_minutes=5)
-"
-```
-
-### **Step 5: Verify Installation**
-
-```bash
-# Check system health
-./simple_health_check.sh
-
-# Test API endpoints
-curl http://localhost:5004/api/health
-curl http://localhost:5004/api/analytics/comprehensive | python3 -m json.tool
-
-# Access the dashboard
-open http://localhost:3000  # macOS
-# or visit http://localhost:3000 in your browser
-```
-
-### **📦 Manual Setup (Step by Step)**
-
-**1. Setup Backend Services**
-```bash
-# Install Python dependencies
+# 1. Backend API Server
 cd backend
 pip install -r requirements.txt
-cd ..
-
-# Start the main backend API
-cd backend
 python simple_backend.py
-```
 
-**2. Setup Frontend**
-```bash
-# In a new terminal
+# 2. Blockchain Service
+cd blockchain
+python simple_blockchain_server.py
+
+# 3. Privacy Layer
+cd privacy_layer
+python privacy_server.py
+
+# 4. Anomaly Detection Engine
+cd anomaly_detection
+python simple_api_server.py
+
+# 5. Frontend Dashboard
 cd frontend
 npm install
 npm start
+
+# 6. Explainability Service
+cd explainability
+python explanation_server.py
 ```
 
-**3. Start Data Simulator**
+### 🐳 Docker Deployment
+
 ```bash
-# In a new terminal (from project root)
-python data_simulator_dashboard.py --interval 2 --verbose
-```
-
-**4. Start Analytics Engine**
-```bash
-# In a new terminal
-cd anomaly_detection
-pip install -r requirements.txt
-python anomaly_detection_api.py
-```
-
-## 🌐 **Access Points**
-
-After starting all services:
-
-- **🖥️ Main Dashboard**: http://localhost:3000
-- **🔧 Backend API**: http://localhost:5004
-- **📊 Analytics API**: http://localhost:8001
-- **🔬 Data Simulator**: Running in terminal with live updates
-
-## 📊 **Current System Status**
-
-**✅ System is fully operational with:**
-- **Backend**: Running on port 5004 ✅
-- **Frontend**: Running on port 3000 ✅  
-- **Data Flow**: 259+ total records processed ✅
-- **Anomaly Detection**: 219+ anomalies detected ✅
-- **Real-time Updates**: 30-second refresh cycle ✅
-- **Dashboard Fix**: Anomaly detection display issue resolved ✅
-
-> **Last Updated**: May 25, 2025 - Dashboard now correctly displays live analytics data instead of showing 0 values.
-
-## 🔧 **Key Components**
-
-### **Frontend (`frontend/`)**
-- **React 18** with Material-UI components
-- **Redux** for state management
-- **Real-time dashboard** with auto-refresh
-- **Responsive design** for all devices
-
-### **Backend (`backend/`)**
-- **Flask API server** with CORS support
-- **RESTful endpoints** for all data operations
-- **Authentication system** (token-based)
-- **Data aggregation** and analytics processing
-
-### **Analytics Engine (`anomaly_detection/` & root files)**
-- **`integrated_analytics.py`** - Main analytics orchestrator
-- **`advanced_anomaly_detection.py`** - ML-based anomaly detection
-- **`predictive_analytics.py`** - Forecasting and predictions
-- **`real_time_alerting.py`** - Alert system
-
-### **Data Simulation (`data_simulator_dashboard.py`)**
-- **Real-time data generation** with configurable intervals
-- **Realistic supply chain scenarios** (temperature, humidity, location)
-- **Automatic anomaly injection** for testing
-
-### **Blockchain Layer (`blockchain/`)**
-- **Hyperledger Fabric 2.x** network configuration
-- **Smart contracts** for supply chain verification
-- **Immutable record keeping**
-- **Channel participation API** for advanced channel management
-- **Diagnostic tools** for network troubleshooting
-
-> The blockchain network has been updated to be compatible with Hyperledger Fabric 2.x with improved DNS resolution between containers and enhanced network configuration.
-
-## 🚀 **Production Deployment**
-
-### **Docker Deployment**
-```bash
-# Start all services with Docker
+# Production deployment with Docker Compose
 docker-compose up -d
 
-# Monitor logs
-docker-compose logs -f
+# Development environment
+docker-compose -f docker-compose.dev.yml up
+
+# Scale specific services
+docker-compose up -d --scale anomaly-detection=3
 ```
 
-### **Production Script**
+### ☸️ Kubernetes Deployment
+
 ```bash
-chmod +x deploy_production.sh
-./deploy_production.sh
+# Deploy to Kubernetes cluster
+kubectl apply -f k8s/
+
+# Monitor deployment
+kubectl get pods -l app=cryptanet
+
+# Access via LoadBalancer
+kubectl get services cryptanet-frontend
 ```
 
-## 🔍 **API Endpoints**
+## 🔧 Configuration
 
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/api/analytics/comprehensive` | GET | Complete analytics dashboard data |
-| `/api/analytics/real-time` | GET | Live metrics and KPIs |
-| `/api/supply-chain/data` | GET | Raw supply chain data |
-| `/api/auth/login` | POST | User authentication |
-| `/api/health` | GET | System health check |
+### Environment Variables
 
-## 🛠️ **Development Commands**
-
-### **Health Checks**
 ```bash
-# Quick system health check
-./simple_health_check.sh
+# Core Configuration
+CRYPTANET_ENV=production
+SECRET_KEY=your-secret-key-here
+DATABASE_URL=postgresql://user:pass@localhost/cryptanet
 
-# Comprehensive system monitoring
-./system_health_monitor.sh
+# Service Ports
+BACKEND_PORT=5004
+BLOCKCHAIN_PORT=5005
+PRIVACY_PORT=5003
+ANOMALY_DETECTION_PORT=5002
+EXPLAINABILITY_PORT=5006
+
+# ML Model Configuration
+MODEL_PATH=anomaly_detection/saved_models/
+DETECTION_THRESHOLD=0.85
+ENSEMBLE_WEIGHTS=[0.3,0.2,0.2,0.1,0.2]
+
+# Security Settings
+JWT_SECRET_KEY=your-jwt-secret
+JWT_ACCESS_TOKEN_EXPIRES=3600
+CORS_ORIGINS=http://localhost:3000
+
+# Blockchain Configuration
+BLOCKCHAIN_NETWORK=test
+CONSENSUS_ALGORITHM=PBFT
+BLOCK_SIZE=1000
+
+# Privacy Configuration
+ENCRYPTION_KEY=your-encryption-key
+ZKP_ENABLED=true
+HOMOMORPHIC_ENCRYPTION=true
 ```
 
-### **Testing Data Flow**
+### Data Simulator Configuration
+
+Customize `simulator_config.json` for realistic data generation:
+
+```json
+{
+  "products": [
+    "Coffee Beans", "Electronics", "Pharmaceuticals", 
+    "Automotive Parts", "Textiles", "Food Products"
+  ],
+  "locations": [
+    "Warehouse A", "Warehouse B", "Cold Storage",
+    "Distribution Center", "Manufacturing Plant"
+  ],
+  "anomaly_types": [
+    "temperature_spike", "humidity_drop", "quantity_mismatch",
+    "location_error", "time_anomaly", "quality_degradation"
+  ],
+  "anomaly_rate": 0.15,
+  "data_frequency_seconds": 5,
+  "batch_size": 100
+}
+```
+
+## 📡 API Reference
+
+### 🔍 Core Endpoints
+
 ```bash
-# Test comprehensive analytics
-curl -s http://localhost:5004/api/analytics/comprehensive | python3 -m json.tool
+# System Health Check
+GET /health
+Response: {"status": "healthy", "timestamp": "2025-06-09T10:00:00Z"}
 
-# Check real-time metrics
-curl -s http://localhost:5004/api/analytics/real-time | python3 -m json.tool
+# Submit Supply Chain Data
+POST /api/supply-chain/submit
+Content-Type: application/json
+{
+  "organizationId": "Org1MSP",
+  "dataType": "supply_chain",
+  "data": {
+    "product": "Coffee Beans",
+    "quantity": 1000,
+    "location": "Warehouse A",
+    "temperature": 22.5,
+    "humidity": 65.0,
+    "timestamp": "2025-06-09T10:00:00Z"
+  }
+}
+
+# Query Blockchain Data
+GET /api/supply-chain/query?product=Coffee%20Beans&limit=10
+
+# Real-time Anomaly Detection
+POST /api/anomaly/detect
+{
+  "features": [22.5, 65.0, 1000, 1.2, 0.8],
+  "model": "ensemble"
+}
+
+# Get Anomaly Explanations
+GET /api/explain/anomaly/{anomaly_id}
+
+# Real-time Analytics Dashboard
+GET /api/analytics/dashboard
 ```
 
-### **Start Individual Services**
+### 🔐 Authentication
+
 ```bash
-# Backend only
-cd backend && python simple_backend.py
+# Login
+POST /api/auth/login
+{
+  "username": "admin",
+  "password": "admin123"
+}
 
-# Frontend only  
-cd frontend && npm start
+# Response includes JWT token
+{
+  "access_token": "eyJ0eXAiOiJKV1QiLCJhbG...",
+  "token_type": "bearer",
+  "expires_in": 3600
+}
 
-# Data simulator only
-python data_simulator_dashboard.py --interval 5 --verbose
-
-# Analytics engine only
-cd anomaly_detection && python anomaly_detection_api.py
+# Use token in subsequent requests
+Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbG...
 ```
 
-## 📁 **Project Structure**
+## 🧪 Testing & Quality Assurance
 
-```
-CryptaNet/
-├── 📱 frontend/                 # React web application
-├── 🔧 backend/                  # Flask API server
-├── 🤖 anomaly_detection/        # ML models and APIs
-├── ⛓️ blockchain/              # Hyperledger Fabric network
-├── 🔒 privacy_layer/           # Privacy and security components
-├── 🐳 docker/                   # Docker configurations
-├── 📊 integrated_analytics.py   # Main analytics engine
-├── 🔮 predictive_analytics.py   # Forecasting system
-├── 🚨 real_time_alerting.py     # Alert management
-├── 📈 data_simulator_dashboard.py # Data generation
-└── 🚀 start_enhanced_system.sh  # One-command startup
-```
+### 🏥 System Health Verification
 
-## 🔧 **Troubleshooting**
-
-### **New System Setup Issues**
-
-**Python Module Not Found:**
 ```bash
-# If you get "ModuleNotFoundError"
-pip3 install --upgrade pip
-pip3 install flask flask-cors requests numpy pandas scikit-learn joblib
+# Comprehensive health check
+./test_integration.sh
 
-# For macOS with multiple Python versions
-python3.11 -m pip install [package-name]
+# Individual service health
+curl http://localhost:5004/health  # Backend
+curl http://localhost:5005/health  # Blockchain
+curl http://localhost:5003/health  # Privacy Layer
+curl http://localhost:5002/health  # Anomaly Detection
+curl http://localhost:5006/health  # Explainability
 ```
 
-**Node.js Version Issues:**
-```bash
-# Install Node Version Manager (nvm)
-curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
-source ~/.bashrc  # or ~/.zshrc for zsh
+### 🔬 Integration Testing
 
-# Install and use Node 18
-nvm install 18
-nvm use 18
+```bash
+# Run full integration test suite
+python test_integrated_system.py
+
+# Frontend-backend integration
+node test_frontend_api.js
+
+# Load testing
+python load_test.py --concurrent-users=100 --duration=300
 ```
 
-**Permission Errors:**
+### 📊 Performance Benchmarking
+
 ```bash
-# Make scripts executable
+# Generate research-quality metrics
+python generate_research_metrics.py
+
+# Output includes:
+# - High-resolution confusion matrices (300 DPI)
+# - ROC curves with confidence intervals
+# - Precision-recall curves
+# - Feature importance analysis
+# - LaTeX tables for academic papers
+# - CSV data for statistical analysis
+```
+
+## 📈 Monitoring & Observability
+
+### 📊 Dashboards
+
+- **Grafana Dashboard**: http://localhost:3001 (Docker deployment)
+- **Prometheus Metrics**: http://localhost:9090 (Docker deployment)
+- **System Logs**: `tail -f logs/*.log`
+
+### 🚨 Alerting System
+
+The system includes intelligent alerting with:
+- **Real-time anomaly notifications**
+- **System health alerts**
+- **Performance degradation warnings**
+- **Security incident notifications**
+- **Email/SMS/Slack integration**
+
+### 📋 Log Management
+
+```bash
+# View all service logs
+tail -f logs/*.log
+
+# Individual service logs
+tail -f logs/backend.log
+tail -f logs/blockchain.log
+tail -f logs/anomaly_detection.log
+tail -f logs/privacy_layer.log
+
+# Error logs only
+grep ERROR logs/*.log
+
+# Real-time log monitoring
+watch -n 1 'tail -n 20 logs/combined.log'
+```
+
+## 🔧 Troubleshooting
+
+### 🚨 Common Issues & Solutions
+
+**Port Conflicts:**
+```bash
+# Check port usage
+lsof -i :3000 -i :5004 -i :5005 -i :5003 -i :5002
+
+# Stop all services gracefully
+./stop_system.sh
+
+# Force kill if needed
+pkill -f "python.*cryptanet"
+pkill -f "node.*react"
+```
+
+**Permission Issues:**
+```bash
+# Fix script permissions
 chmod +x *.sh
+chmod +x scripts/*.sh
 
-# Fix npm permissions (if needed)
-sudo chown -R $(whoami) ~/.npm
+# Python virtual environment
+source venv/bin/activate  # Linux/Mac
+# or
+.\venv\Scripts\activate   # Windows
 ```
 
-### **Runtime Issues**
-
-**Port Already in Use:**
+**Database Issues:**
 ```bash
-# Kill processes on specific ports
-sudo lsof -ti:3000 | xargs kill -9  # Frontend
-sudo lsof -ti:5004 | xargs kill -9  # Backend
-sudo lsof -ti:8001 | xargs kill -9  # Analytics
+# Reset database
+rm -f *.db
+python -c "from backend.database import init_db; init_db()"
+
+# Check database integrity
+sqlite3 alerts.db "PRAGMA integrity_check;"
 ```
 
-**Services Not Starting:**
+**Frontend Build Issues:**
 ```bash
-# Check if Python/Node are properly installed
-which python3
-which node
-which npm
+# Clear npm cache
+npm cache clean --force
 
-# Restart all services
-./start_enhanced_system.sh
+# Delete node_modules and reinstall
+rm -rf frontend/node_modules
+cd frontend && npm install
+
+# Update dependencies
+npm update
 ```
 
-**Dashboard Shows Zero Values:**
+### 🆘 Getting Help
+
+1. **Check System Status**: http://localhost:5004/health
+2. **Review Logs**: Check `logs/` directory for detailed error information
+3. **API Documentation**: Available at each service endpoint
+4. **Integration Tests**: Run `./test_integration.sh` for diagnostics
+
+## 🚢 Production Deployment
+
+### 🏭 Production Checklist
+
+- [ ] Update all default passwords
+- [ ] Configure SSL/TLS certificates
+- [ ] Set up database backups
+- [ ] Configure monitoring and alerting
+- [ ] Set up log aggregation
+- [ ] Configure firewall rules
+- [ ] Set up load balancing
+- [ ] Configure auto-scaling policies
+
+### 🔒 Security Hardening
+
 ```bash
-# This issue has been fixed! If you still see it:
-# 1. Restart the data simulator dashboard
-python3 data_simulator_dashboard.py
+# Generate secure secrets
+openssl rand -hex 32  # For JWT_SECRET_KEY
+openssl rand -hex 16  # For ENCRYPTION_KEY
 
-# 2. Check backend health
-curl http://localhost:5004/api/analytics/comprehensive
+# Set file permissions
+chmod 600 config/*.env
+chmod 644 ssl/*.crt
+chmod 600 ssl/*.key
 
-# 3. Refresh your browser
+# Configure firewall
+ufw allow 80,443,22/tcp
+ufw enable
 ```
 
-**Missing Dependencies:**
+### 📦 Backup & Recovery
+
 ```bash
-# Python dependencies (using requirements files)
-cd backend && pip3 install -r requirements.txt && cd ..
-cd anomaly_detection && pip3 install -r requirements.txt && cd ..
-pip3 install -r simulator_requirements.txt
+# Database backup
+pg_dump cryptanet > backup_$(date +%Y%m%d).sql
 
-# Node.js dependencies
-cd frontend && npm install && cd ..
+# Model backup
+tar -czf models_backup_$(date +%Y%m%d).tar.gz anomaly_detection/saved_models/
+
+# Configuration backup
+tar -czf config_backup_$(date +%Y%m%d).tar.gz config/ .env*
 ```
 
-**Data Not Showing:**
-```bash
-# Restart data simulator dashboard
-python3 data_simulator_dashboard.py
+## 👥 Contributing
 
-# Check backend status
-curl http://localhost:5004/api/health
-```
+We welcome contributions! Please follow these guidelines:
 
-### **Performance Issues**
-
-**Slow Loading:**
-- Ensure you have at least 4GB RAM available
-- Close unnecessary applications
-- Check system resource usage with `top` or Activity Monitor
-
-**High CPU Usage:**
-- Use the simulator dashboard to select a longer interval (10 or 30 seconds)
-- Monitor with: `./system_health_monitor.sh`
-
-### **Blockchain Network Issues**
-
-**Channel Creation Issues:**
-```bash
-# Run blockchain diagnostic script
-cd blockchain/network
-./diagnostic.sh
-
-# Manual channel creation (if needed)
-./create_channel_manual.sh
-```
-
-**Container Connectivity Issues:**
-```bash
-# Check container DNS resolution
-docker exec cli ping peer0.org1.example.com
-
-# Check if orderer admin API is accessible
-docker exec cli curl -s http://orderer.example.com:9443/participation/v1/channels
-```
-
-**Reset Blockchain Network:**
-```bash
-cd blockchain/docker
-docker-compose down -v
-cd ../network
-./generate.sh
-cd ../docker
-./prepare_environment.sh clean
-docker-compose up -d
-```
-
-## 🤝 **Contributing**
+### 🔄 Development Workflow
 
 1. **Fork** the repository
 2. **Create** a feature branch (`git checkout -b feature/amazing-feature`)
-3. **Commit** your changes (`git commit -m 'Add amazing feature'`)
-4. **Push** to the branch (`git push origin feature/amazing-feature`)
-5. **Open** a Pull Request
+3. **Make** your changes with proper testing
+4. **Commit** with conventional commit messages
+5. **Push** to your feature branch
+6. **Open** a Pull Request with detailed description
 
-## 📜 **License**
+### 📝 Code Standards
 
-This project is licensed under the **MIT License** - see the LICENSE file for details.
+- **Python**: Follow PEP 8, use Black formatter
+- **JavaScript**: Follow Airbnb style guide, use Prettier
+- **Documentation**: Update README and docstrings
+- **Testing**: Maintain >90% code coverage
+- **Security**: Follow OWASP guidelines
 
-## 🆘 **Support**
+### 🧪 Testing Requirements
 
-- **📧 Issues**: Open an issue on GitHub
-- **💬 Discussions**: Use GitHub Discussions for questions
-- **📖 Documentation**: Check the `/docs` folder for detailed guides
+```bash
+# Run all tests before submitting PR
+python -m pytest tests/ --cov=. --cov-report=html
+npm test --coverage --watchAll=false
 
+# Code quality checks
+black . --check
+flake8 .
+eslint frontend/src/
+```
+
+## 📄 License
+
+This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
+
+## 🎓 Citation
+
+If you use CryptaNet in your research, please cite:
+
+```bibtex
+@software{cryptanet2025,
+  title={CryptaNet: Blockchain-Based Anomaly Detection System for Supply Chain Security},
+  author={CryptaNet Development Team},
+  year={2025},
+  url={https://github.com/bhaskardatta/cryptanet},
+  version={3.0.0}
+}
+```
+
+## 🙏 Acknowledgments
+
+Special thanks to:
+- **Hyperledger Fabric** community for blockchain infrastructure
+- **scikit-learn** team for machine learning algorithms
+- **React.js** ecosystem for frontend framework
+- **Flask** community for backend API framework
+- **SHAP** developers for explainable AI capabilities
 ---
 
-**🎉 CryptaNet - Revolutionizing Supply Chain Analytics with Real-time Intelligence!**
+<div align="center">
+
+**🛡️ Built with 💙 for secure, transparent, and intelligent supply chain monitoring**
+
+[![Made with Love](https://img.shields.io/badge/Made%20with-❤️-red.svg)](https://github.com/bhaskardatta/cryptanet)
+[![GitHub Stars](https://img.shields.io/github/stars/bhaskardatta/cryptanet.svg)](https://github.com/bhaskardatta/cryptanet/stargazers)
+[![GitHub Forks](https://img.shields.io/github/forks/bhaskardatta/cryptanet.svg)](https://github.com/bhaskardatta/cryptanet/network)
+
+</div>

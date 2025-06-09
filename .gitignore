@@ -1,39 +1,16 @@
-# Dependencies
-node_modules/
-venv/
-env/
+# CryptaNet - Comprehensive .gitignore
 
-# Environment variables
-.env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
-
-# OS generated files
-.DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-Thumbs.db
-
-# Logs
-*.log
-logs/
-log/
-
-# Python cache and compiled files
-*.pyc
+# ===== PYTHON =====
+# Byte-compiled / optimized / DLL files
+__pycache__/
 *.py[cod]
 *$py.class
-*.so
-__pycache__/
-*.egg-info/
+
+# Distribution / packaging
+.Python
 build/
-dist/
 develop-eggs/
+dist/
 downloads/
 eggs/
 .eggs/
@@ -43,63 +20,251 @@ parts/
 sdist/
 var/
 wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
 .installed.cfg
 *.egg
 MANIFEST
 
-# IDE files
-.idea/
-.vscode/
-*.swp
-*.swo
-*~
+# PyInstaller
+*.manifest
+*.spec
 
-# Analysis results (generated files)
-analysis_results_*.json
-performance_report_*.json
-
-# Database files (temporary/development)
-*.db
-*.sqlite
-*.sqlite3
-
-# Testing and coverage
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
 .coverage
 .coverage.*
+.cache
+nosetests.xml
 coverage.xml
 *.cover
+*.py,cover
 .hypothesis/
 .pytest_cache/
-htmlcov/
+
+# Virtual environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
 
 # Jupyter Notebook
 .ipynb_checkpoints
 
-# Docker
-.dockerignore
+# pyenv
+.python-version
 
-# Temporary files
-tmp/
-temp/
-*.tmp
-*.temp
-*.bak
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
 
-# Model files (if large)
-*.pkl
-*.pickle
-*.joblib
-*.h5
-*.hdf5
-
-# Node.js specific
+# ===== NODE.JS =====
+# Logs
+logs
+*.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+lerna-debug.log*
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory used by tools like istanbul
+coverage/
+*.lcov
+
+# nyc test coverage
+.nyc_output
+
+# Dependency directories
+node_modules/
+jspm_packages/
+
+# TypeScript cache
+*.tsbuildinfo
+
+# Optional npm cache directory
 .npm
+
+# Optional eslint cache
 .eslintcache
+
+# Yarn Integrity file
+.yarn-integrity
+
+# dotenv environment variables file
+.env
+.env.test
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# parcel-bundler cache
+.cache
+.parcel-cache
+
+# Next.js build output
+.next
+
+# Nuxt.js build / generate output
+.nuxt
+dist
+
+# Rollup.js default build output
+dist/
+
+# Serverless directories
+.serverless/
+
+# ===== REACT SPECIFIC =====
+# Build outputs
+build/
+dist/
+
+# ===== DATABASES =====
+# SQLite
+*.db
+*.sqlite
+*.sqlite3
+*.db-journal
+
+# PostgreSQL
+*.sql
+
+# ===== MACHINE LEARNING =====
+# Model files (large)
+*.h5
+*.hdf5
+*.pkl
+*.pickle
+*.joblib
+*.model
+
+# Data files (keep small samples)
+data/large/
+data/raw/
+data/processed/
+
+# MLflow
+mlruns/
+mlartifacts/
+
+# Weights & Biases
+wandb/
+
+# TensorBoard logs
+runs/
+logs/
+
+# ===== BLOCKCHAIN =====
+# Hyperledger Fabric
+wallet/
+channel-artifacts/
+crypto-config/
+organizations/
+system-genesis-block/
+*.tx
+*.block
+
+# ===== LOGS & MONITORING =====
+# Log files
+*.log
+*.out
+*.err
+logs/
+log/
+
+# Process IDs
+pids/
+*.pid
+
+# ===== SECURITY =====
+# Keys and certificates
+*.pem
+*.key
+*.crt
+*.csr
+*.p12
+*.pfx
+secrets/
+.secrets/
+
+# ===== TEMPORARY FILES =====
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+*.tmp
+*.temp
+
+# Backup files
+*.bak
+*.backup
+*.old
+*_backup
+*_old
+
+# ===== PROJECT SPECIFIC =====
+# Analysis results
+analysis_results_*.json
+performance_metrics_*.json
+benchmark_results_*.csv
+
+# Generated documentation
+docs/_build/
+docs/build/
+
+# Test results
+test-results/
+test_output/
+coverage/
 
 # Status and report files
 *STATUS*.md
 *REPORT*.md
 *COMPLETE*.md
+
+# ===== ALLOW IMAGES FOR GITHUB =====
+# Allow all image files for documentation
+!*.png
+!*.jpg
+!*.jpeg
+!*.gif
+!*.svg
+!*.ico
+!*.webp
+
+# Allow images in specific directories
+!images/**
+!assets/**
+!docs/**/*.png
+!docs/**/*.jpg
+!docs/**/*.jpeg
+!docs/**/*.gif
+!docs/**/*.svg
+!individual_model_metrics_*/**
+!anomaly_detection/saved_models/*.png
+!frontend/public/**

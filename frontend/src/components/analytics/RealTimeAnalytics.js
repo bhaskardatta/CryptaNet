@@ -46,7 +46,7 @@ const RealTimeAnalytics = () => {
       setError(null);
       const token = localStorage.getItem('token');
       
-      const response = await axios.get(`${API_URL}/api/analytics/comprehensive`, {
+      const response = await axios.get(`${API_URL}/api/analytics`, {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
         timeout: 10000
       });
@@ -75,7 +75,7 @@ const RealTimeAnalytics = () => {
 
   useEffect(() => {
     fetchAnalyticsData();
-    const intervalId = setInterval(fetchAnalyticsData, 30000);
+    const intervalId = setInterval(fetchAnalyticsData, 5000); // Update every 5 seconds
     return () => clearInterval(intervalId);
   }, []);
 
@@ -95,9 +95,9 @@ const RealTimeAnalytics = () => {
     );
   }
 
-  const analytics = analyticsData?.analytics || {};
+  const analytics = analyticsData || {};
   const totalRecords = analytics.total_records || 0;
-  const anomalies = analytics.anomaly_detection?.anomalies || [];
+  const anomalies = analytics.anomalies || [];
   const alerts = analytics.alerts || [];
   const modelAccuracy = analytics.model_metrics?.accuracy || 0.95;
   const responseTime = analytics.response_metrics?.average_time || 2.5;
